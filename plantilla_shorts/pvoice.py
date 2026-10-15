@@ -1,0 +1,285 @@
+"""Locución 100 % local y gratuita, castellano de España, apta para uso comercial.
+Modelo: Piper VITS es_ES «davefx» (dataset CC0) + fonemas espeak-ng.
+Naturalidad:
+  - cada frase se sintetiza aparte, con pausas de lectura reales (coma, punto, pregunta, dos puntos) y ligera variación;
+  - fonemas por cláusula (palabras átonas sin acento, alófonos naturales) y números compuestos ligados
+    («setentaicuatro», «veintemil») con un solo acento principal;
+  - ruido de síntesis bajo (noise_scale 0,42–0,55) y penalización de tomas con siseo;
+  - VITS es estocástico: se generan N tomas por frase y se elige la de entonación más viva sin artefactos
+    (desviación de F0 en semitonos alta, pocos saltos de octava, sin cortes);
+  - ritmo variable: el gancho y la pregunta final más pausados; el cuerpo, a ritmo de presentador;
+  - las preguntas se refuerzan con un final ascendente del propio modelo («?»).
+Uso: python3 pvoice.py <id> [velocidad] [tomas]
+Salida: /home/claude/work/voz/<id>.mp3 (ya procesada), voz/<id>.wav y /home/claude/work/words/<id>.json (tiempos por palabra)
+"""
+import sys, json, re, subprocess, importlib
+import numpy as np, onnxruntime as rt
+from scipy.io import wavfile
+DEBUG = False
+USE_ASR = True
+NOISE = (0.42, 0.55); NOISE_NUM = (0.4, 0.5)   # ruido de síntesis de VITS (más alto = más vivo, más bajo = más limpio y algo más plano)
+USE_ASR_NOMBRES = True   # elige la toma en la que Whisper entiende los nombres extranjeros (si Whisper está instalado)
+TARGET_SPREAD = None   # si se fija (semitonos), se prefiere entonación firme de presentador en vez de la más movida
+ASR_REPORT = []
+SEGS = []   # (texto de la frase, audio) de la última ejecución, para revisarlas con asr.py
+# Cadena de audio (15/10/2026, 2.ª versión; Jocs: «sigue habiendo un poco de ruido metálico de fondo»): sin reducción de ruido
+# por FFT (afftdn dejaba «ruido musical», un pitido metálico entre palabras), sin puerta (cortaba colas) y sin eco corto
+# (18–31 ms coloreaba la voz como un filtro de peine). La voz de VITS ya sale limpia: solo ecualización, de-esser suave
+# y compresión. La versión anterior está en /mnt/project-files/mejoras/2026-10-15/pvoice_v3_anterior.py.
+FX = ("aresample=44100:resampler=soxr,highpass=f=70,lowpass=f=8500,equalizer=f=160:t=q:w=1:g=2.5,equalizer=f=2800:t=q:w=1.4:g=1.5,"
+      "equalizer=f=5500:t=q:w=1.5:g=-3,deesser=i=0.3,acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120:makeup=2")
+D = "/home/claude/tts"; WORK = "/home/claude/work"
+ESPEAK = [f"{D}/espeak/bin/espeak-ng", "-q", "-v", "es", "--ipa"]
+# Palabras inglesas: se pronuncian en inglés correcto (fonemas en-us de espeak-ng). Clave en minúsculas y sin puntuación.
+ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "pole": "pole", "truth": "Truth", "social": "Social", "the": "The", "new": "New", "york": "York", "times": "Times", "openai": "Open AI",
+           "financial": "Financial", "wall": "Wall", "street": "Street", "nvidia": "Nvidia", "micron": "Micron", "bloomberg": "Bloomberg",
+           "nasdaq": "Nasdaq", "dow": "Dow", "jones": "Jones", "axios": "Axios", "reuters": "Reuters", "google": "Google",
+           "microsoft": "Microsoft", "apple": "Apple", "amazon": "Amazon", "meta": "Meta", "tesla": "Tesla", "white": "White", "house": "House",
+           "washington": "Washington", "post": "Post", "journal": "Journal", "goldman": "Goldman", "sachs": "Sachs",
+           "morgan": "Morgan", "stanley": "Stanley", "jp": "JP", "s&p": "S and P", "midterms": "midterms", "chatgpt": "ChatGPT", "anthropic": "Anthropic", "trump": "Trump",
+           "spacex": "Space X", "starlink": "Starlink", "league": "League", "netflix": "Netflix", "iphone": "iPhone", "black": "Black", "friday": "Friday", "premier": "Premier", "white": "White"}
+# Palabras inglesas escritas como las dice un presentador español (15/10/2026, Jocs: «White House y Elon Musk suenan mal aún»).
+# Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
+# Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
+# 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
+INGLES_ES = {"white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg",
+             "news": "niús", "fox": "fóx", "truth": "trúz", "social": "sóchal", "new": "niú", "york": "yórk", "times": "táims",
+             "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
+             "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
+             "stanley": "éstanli", "jones": "yóuns", "dow": "dáu", "nasdaq": "násdak", "reuters": "róiters", "openai": "óupen ei ái",
+             "chatgpt": "chat ge pe té", "midterms": "mídterms", "break": "bréik", "pole": "póul", "sprint": "esprínt",
+             "starlink": "estárlink", "spacex": "espéis ex", "black": "blák", "friday": "fráidei", "premier": "prémier",
+             "netflix": "nétflix", "iphone": "ái fon", "financial": "fainánchal", "journal": "yérnal", "anthropic": "antrópic",
+             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef"}
+# Siglas y nombres españoles con pronunciación fija
+RESPELL = {"cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
+           "ceuta": "céuta", "mohamed": "mojamed", "mohammed": "mojamed", "leclerc": "leclér", "verstappen": "verstápen", "hutíes": "jutíes", "ipc": "ipecé", "lagarde": "lagárd", "haaland": "jáland", "gravenberch": "grávenberj", "cherki": "cherkí", "anfield": "ánfild", "antonelli": "antonéli", "jordan": "yórdan", "bardella": "bardelá", "brent": "brént", "putin": "pútin", "kiev": "kíef", "masters": "másters", "zizou": "zisú", "vacherot": "vacheró", "tsitsipas": "tsitsípas", "lehecka": "léjechka", "tommy": "tómi", "paul": "pol", "taylor": "téilor", "jiri": "yíri", "efe": "éfe", "woltemade": "vóltemade", "muani": "muáni", "keita": "kéita", "asvel": "asvél", "davidovich": "dabídobich",
+           # 15/10/2026: nombres frecuentes en noticias, como los dice un presentador español (misma voz davefx)
+           "netanyahu": "netaniáju", "biden": "báiden", "musk": "mask", "elon": "ílon", "powell": "páuel", "starmer": "stármer", "jinping": "yinpín",
+           "mbappé": "embapé", "mbappe": "embapé", "bellingham": "bélingam", "hamilton": "jámilton", "norris": "nóris", "sinner": "síner",
+           "djokovic": "yókovich", "lebron": "lebrón", "doncic": "dónchich", "zelenski": "selénski", "zelensky": "selénski", "vinícius": "binísius",
+           "medvedev": "medbédef", "zverev": "sbérev", "piastri": "piástri", "leclerc": "leclér", "kane": "kéin", "kim": "kim", "jong": "yong"}   # Ceuta: Whisper oía «Celta» (prueba 10/10)
+# Palabras extranjeras: sus frases van algo más despacio y se elige la toma en la que se entienden
+EXTRANJERAS = (set(ENGLISH) | set(INGLES_ES) | set(RESPELL)) - {"pp", "psoe", "vox", "ibex", "fed", "ser", "ipc", "efe", "the", "new", "post",
+               "social", "black", "break", "pole", "max", "kim", "jong", "brent", "masters", "putin", "kiev", "ceuta", "jordan", "paul", "tommy"}
+ESPEAK_EN = [f"{D}/espeak/bin/espeak-ng", "-q", "-v", "en-us", "--ipa"]
+# La voz davefx solo aprendió los fonemas del castellano: los ingleses que no existen en castellano (ɹ, æ, ʌ, ə, h, v, z…)
+# le llegaban como símbolos que nunca oyó y salían sonidos raros (queja de Jocs, 12/10/2026). Se pasan al fonema castellano
+# más cercano, como pronuncia un presentador español («Wall Street» → «guól estrít», «White House» → «uáit jáus»).
+EN2ES = [("dʒ", "ʝ"), ("ɚ", "eɾ"), ("ɝ", "eɾ"), ("ɹ", "ɾ"), ("æ", "a"), ("ɐ", "a"), ("ɑ", "a"), ("ʌ", "a"), ("ɔ", "o"),
+         ("ə", "e"), ("ɛ", "e"), ("ɜ", "e"), ("ɪ", "i"), ("ᵻ", "i"), ("ʊ", "u"), ("ː", ""), ("h", "x"), ("v", "b"),
+         ("z", "s"), ("ʒ", "ʝ"), ("ɫ", "l"), ("ʔ", "")]
+def ipa_en(text):
+    out = subprocess.run(ESPEAK_EN, input=text, capture_output=True, text=True).stdout
+    out = re.sub("[_\u035c\u0361]", "", " ".join(out.split()))
+    out = re.sub(r"(?<!t)ʃ", "s", out)          # «sh» suelto → s (Washington → uásinton); «ch» (tʃ) se queda
+    for a, b in EN2ES: out = out.replace(a, b)
+    out = re.sub(r"(?<=[dlnstk])ie(?=\s|$)", "ia", out)   # Nvidia → enbidia
+    out = re.sub(r"(^|\s)([ˈˌ]?)s([ptk])", r"\1\2es\3", out)   # «Street», «Starlink», «sprint»: e- de apoyo, como en castellano
+    return out
+# Lo que en un informativo español se dice en castellano (16/10/2026): cambia también en los subtítulos, que salen de este texto.
+TRADUCIR = [(r"\b[Ll]a [Ww]hite [Hh]ouse\b", "la Casa Blanca"), (r"\b[Ww]hite [Hh]ouse\b", "Casa Blanca"),
+            (r"\b(the )?[Pp]entagon\b", "Pentágono"), (r"\b[Ff]ederal [Rr]eserve\b", "Reserva Federal"),
+            (r"\b[Ff]ormula (1|[Oo]ne)\b", "Fórmula 1"), (r"\b[Gg]rand [Pp]rix\b", "Gran Premio")]
+# Ritmo de presentador (16/10/2026, Jocs: «ajustar más las velocidades… que parezca un presentador de verdad»):
+# - cada noticia arranca un poco más aguda y con una pausa antes (el «reinicio» de tono de los informativos);
+# - la última frase de cada noticia cierra algo más grave; el resto varía muy poco (±0,2 semitonos);
+# - frases cortas, cifras y nombres extranjeros, algo más despacio; frases largas, algo más ligeras.
+CAMBIO_TEMA = ("en deportes", "en economía", "en política", "en el mundo", "y en ", "además", "mientras tanto", "por otro lado",
+               "en otro orden", "y ahora", "también", "por su parte", "fuera de", "ya en ", "y fuera", "en fútbol", "en tenis",
+               "en fórmula", "en baloncesto", "y por último", "por último", "en europa", "en estados unidos", "en españa", "y mientras")
+def cambio_tema(frase):
+    f = frase.lower().lstrip("¿¡")
+    return any(f.startswith(m) for m in CAMBIO_TEMA)
+def tono(a, st):
+    """Sube o baja el tono «st» semitonos (remuestreo de alta calidad; el tempo se compensa al sintetizar)."""
+    if abs(st) < 0.05: return a
+    from scipy.signal import resample_poly
+    r = 2 ** (st / 12); up = 1000; down = int(round(up * r))
+    return resample_poly(a, up, down).astype(np.float32)
+VDIR = f"{D}/vits-piper-es_ES-davefx-medium"
+CONF = json.load(open(f"{VDIR}/es_ES-davefx-medium.onnx.json")); PID = CONF["phoneme_id_map"]; SR = CONF["audio"]["sample_rate"]
+sess = rt.InferenceSession(f"{VDIR}/es_ES-davefx-medium.onnx", providers=["CPUExecutionProvider"])
+
+NUM = set("""uno una un dos tres cuatro cinco seis siete ocho nueve diez once doce trece catorce quince dieciséis diecisiete dieciocho diecinueve
+veinte veintiuno veintiuna veintidós veintitrés veinticuatro veinticinco veintiséis veintisiete veintiocho veintinueve treinta cuarenta cincuenta
+sesenta setenta ochenta noventa cien ciento doscientos trescientos cuatrocientos quinientos seiscientos setecientos ochocientos novecientos
+doscientas trescientas cuatrocientas quinientas seiscientas setecientas ochocientas novecientas mil millón millones""".split())
+TENS = set("treinta cuarenta cincuenta sesenta setenta ochenta noventa".split())
+UNITS = set("uno una un dos tres cuatro cinco seis siete ocho nueve".split())
+TEENS = set("diez once doce trece catorce quince dieciséis diecisiete dieciocho diecinueve veinte veintiuno veintidós veintitrés veinticuatro veinticinco veintiséis veintisiete veintiocho veintinueve".split())
+def isnum(w): return w.lower().strip("¿?¡!.,:;…") in NUM
+
+def ipa(text):
+    out = subprocess.run(ESPEAK, input=text, capture_output=True, text=True).stdout
+    return re.sub(r"[_͜͡]", "", " ".join(out.split()))
+
+def synth(ph, speed=1.0, noise=0.5, noise_w=0.85):
+    ids = PID["^"] + PID["_"]
+    for c in ph:
+        if c in PID: ids += PID[c] + PID["_"]
+    ids += PID["$"]
+    a = sess.run(None, {"input": np.array([ids], np.int64), "input_lengths": np.array([len(ids)], np.int64),
+                        "scales": np.array([noise, 1.0 / speed, noise_w], np.float32)})[0]
+    return np.asarray(a).ravel().astype(np.float32)
+
+def f0_track(a, fr=0.02, lo=70, hi=300):
+    n = int(SR * fr); hop = n // 2; out = []
+    for i in range(0, len(a) - 2 * n, hop):
+        x = a[i:i + 2 * n] - a[i:i + 2 * n].mean()
+        if np.sqrt(np.mean(x ** 2)) < 0.02: out.append(np.nan); continue
+        c = np.correlate(x, x, "full")[len(x) - 1:]; c /= c[0] + 1e-9
+        l0, l1 = int(SR / hi), int(SR / lo); k = l0 + np.argmax(c[l0:l1])
+        out.append(SR / k if c[k] > 0.45 else np.nan)
+    return np.array(out)
+
+def score(a):
+    f = f0_track(a); v = f[~np.isnan(f)]
+    if len(v) < 8: return -9
+    st = 12 * np.log2(v / np.median(v)); jumps = np.mean(np.abs(np.diff(st)) > 5)
+    spread = np.std(st); clip = np.mean(np.abs(a) > 0.98)
+    S = np.abs(np.fft.rfft(a * np.hanning(len(a)))) ** 2; fq = np.fft.rfftfreq(len(a), 1 / SR)
+    hiss = S[fq > 6000].sum() / (S.sum() + 1e-9)
+    lively = -abs(spread - TARGET_SPREAD) if TARGET_SPREAD else min(spread, 4.5)
+    return lively - 12 * jumps - 50 * clip - 60 * hiss   # entonación viva, sin saltos ni siseo
+
+def trim(a, thr=0.008):
+    """Quita el silencio de los extremos sin comerse el final de la última palabra (antes cortaba a 18 ms y las «s» finales
+    quedaban secas); con fundidos cortos para que no haya «clic» al empalmar frases (15/10/2026)."""
+    env = np.convolve(np.abs(a), np.ones(240) / 240, "same"); idx = np.where(env > thr)[0]
+    if len(idx) == 0: return a
+    a = a[max(0, idx[0] - 200): idx[-1] + int(0.06 * SR)].copy()
+    fi, fo = int(0.004 * SR), int(0.025 * SR)
+    a[:fi] *= np.linspace(0, 1, fi); a[-fo:] *= np.linspace(1, 0, fo)
+    return a
+
+def main(cid, speed=1.06, takes=6):
+    mod = importlib.import_module(cid); text = getattr(mod, "VOICE", None)
+    if text is None: text = " ".join(w[0] for w in json.load(open(f"{WORK}/words_el/{cid}.json")))
+    for a, b in TRADUCIR:                     # lo que un presentador español dice en castellano
+        text = re.sub(a, b, text)
+    words = text.split(); sents = []; cur = []
+    for i, w in enumerate(words):
+        cur.append(i)
+        if w[-1] in ".?!:" or i == len(words) - 1: sents.append(cur); cur = []
+    frases = [" ".join(words[i] for i in s) for s in sents]
+    inicio = [si == 0 or cambio_tema(fr) for si, fr in enumerate(frases)]          # empieza noticia
+    fin = [si + 1 < len(sents) and inicio[si + 1] for si in range(len(sents))]    # cierra noticia
+    SEGS.clear(); plan = []; rng = np.random.default_rng(11); audio = []; t = 0.0; timing = []
+    for si, s in enumerate(sents):
+        spoken = []; wph = []
+        for j, i in enumerate(s):
+            w = words[i]; lw = w.lower().strip("¿?¡!.,:;…")
+            punct = "".join(ch for ch in w if ch in ",.:;?!…")
+            sp = (INGLES_ES[lw] + punct) if lw in INGLES_ES else ("⟦" + ENGLISH[lw] + "⟧" + punct) if lw in ENGLISH else RESPELL.get(lw, w)
+            core = sp.strip("¿?¡!.,:;…").replace("¿", "").replace("¡", "")
+            nxt = words[s[j + 1]].lower().strip("¿?¡!.,:;…") if j + 1 < len(s) else ""
+            prv = words[s[j - 1]].lower().strip("¿?¡!.,:;…") if j > 0 else ""
+            nx2 = words[s[j + 2]].lower().strip("¿?¡!.,:;…") if j + 2 < len(s) else ""
+            glue = ""
+            if lw in TENS and nxt == "y" and nx2 in UNITS and not punct: glue = "i"        # setenta y cuatro -> setentaicuatro
+            elif lw == "y" and prv in TENS and nxt in UNITS: core = ""                      # la «y» ya va pegada
+            elif (lw in UNITS or lw in TEENS or lw in TENS) and nxt == "mil" and not punct: glue = "+"   # veinte mil -> veintemil
+            if lw in ("dos", "tres", "seis") and prv == "y" and j >= 2 and words[s[j - 2]].lower() in TENS:
+                core = {"dos": "dós", "tres": "trés", "seis": "séis"}[lw] + core[len(lw):]   # treintaitrés, con acento final
+            spoken.append((core, glue, punct)); wph.append(max(1, len(core)) + (3 if punct else 0))
+        txt = ""
+        for core, glue, punct in spoken:
+            if not core: continue
+            txt += core + ("" if glue == "+" else glue) + ("" if glue else punct + " ")
+        clauses = re.split(r"([,.:;?!…])", txt); ph = ""
+        for k in range(0, len(clauses), 2):
+            c = clauses[k].strip(); pu = clauses[k + 1] if k + 1 < len(clauses) else ""
+            if c:
+                c = c.replace("⟧ ⟦", " ")          # nombres ingleses de varias palabras, de una vez
+                eng = re.findall(r"⟦([^⟧]*)⟧", c)
+                es = ipa(re.sub(r"⟦[^⟧]*⟧", "tatata", c))  # el castellano se fonemiza con su contexto completo
+                for e in eng: es = re.sub(r"[ˈˌ]?t[ˈˌ]?a[ˈˌ]?t[ˈˌ]?a[ˈˌ]?t[ˈˌ]?a", lambda _m, e=e: ipa_en(e), es, count=1)
+                seg = [es]
+                ph += " ".join(seg) + pu.replace("…", ",").replace(";", ",") + " "
+        ph = ph.strip()
+        if DEBUG: print(ph)
+        q = words[s[-1]].endswith("?")
+        # con cifras, ritmo más regular (menos variación de duración entre sílabas): los números salían a trompicones (Jocs, 12/10/2026)
+        nums = sum(isnum(words[i]) for i in s) >= 2
+        ext = [w for w in (words[i].lower().strip("¿?¡!.,:;…") for i in s) if w in EXTRANJERAS]
+        f = 0.93 if si == 0 or q else 1.0                      # gancho y pregunta, más pausados
+        f *= min(1.04, max(0.95, 0.97 + 0.005 * (len(s) - 10)))   # frase corta, más despacio; larga, más ligera
+        f *= (0.97 if nums else 1.0) * (0.97 if ext else 1.0)    # cifras y nombres extranjeros, que se entiendan
+        st = 0.5 if inicio[si] else (-0.4 if fin[si] and not q else float(rng.uniform(-0.2, 0.2)))
+        r = 2 ** (st / 12)
+        nw = (0.6, 0.72) if nums else (0.8, 0.95); ns = NOISE_NUM if nums else NOISE
+        takes_ = [trim(tono(synth(ph, speed * f / r * rng.uniform(0.98, 1.02), noise=rng.uniform(*ns), noise_w=rng.uniform(*nw)), st))
+                  for _ in range(takes)]
+        plan.append((s, wph, takes_, ext))
+    choice = []
+    if USE_ASR_NOMBRES and not USE_ASR and any(p[3] for p in plan):
+        # Frases con nombres extranjeros: de las tomas, la que Whisper entiende con el nombre bien escrito (16/10/2026).
+        # Si Whisper no está instalado, se elige como siempre.
+        try:
+            import asr, os, unicodedata
+            def pl(t):
+                t = unicodedata.normalize("NFD", t.lower()); return "".join(c for c in t if c.isalnum() or c == " ")
+            files = []
+            for pi, (s, wph, tk, ext) in enumerate(plan):
+                if ext:
+                    for ti, a in enumerate(tk):
+                        fn = f"/tmp/pv_n_{pi}_{ti}.wav"; wavfile.write(fn, SR, (a / (np.abs(a).max() + 1e-9) * 0.9 * 32767).astype(np.int16)); files.append(fn)
+            hyp = iter(asr.transcribe(files))
+            for s, wph, tk, ext in plan:
+                if not ext: choice.append(max(tk, key=score)); continue
+                txt = " ".join(words[i] for i in s)
+                sc = [(sum(pl(e) in pl(h) for e in ext), round(asr.sim(txt, h)[0], 2), score(a), a) for a, h in ((a, next(hyp)) for a in tk)]
+                best = max(sc, key=lambda x: (x[0], x[1], x[2])); choice.append(best[3])
+                print(f"  nombres {best[0]}/{len(ext)} en la mejor de {len(tk)} tomas: {' '.join(ext)}")
+            for fn in files: os.remove(fn)
+        except Exception as e:
+            print("Whisper no disponible para elegir tomas con nombres:", e); choice = []
+    if choice:
+        pass
+    elif USE_ASR:
+        import asr, os
+        files = []
+        for pi, (s, wph, tk, _) in enumerate(plan):
+            for ti, a in enumerate(tk):
+                f = f"/tmp/pv_take_{pi}_{ti}.wav"; wavfile.write(f, SR, (a / (np.abs(a).max() + 1e-9) * 0.9 * 32767).astype(np.int16)); files.append(f)
+        hyp = iter(asr.transcribe(files)); report = []
+        for s, wph, tk, _ in plan:
+            txt = " ".join(words[i] for i in s); scored = []
+            for a in tk:
+                r, ea, eb = asr.sim(txt, next(hyp)); scored.append((round(r, 2), score(a), a, eb))
+            best = max(scored, key=lambda x: (x[0], x[1])); choice.append(best[2]); report.append((best[0], txt, best[3]))
+        for f in files: os.remove(f)
+        ASR_REPORT.clear(); ASR_REPORT.extend(report)
+        print("inteligibilidad media (Whisper):", round(float(np.mean([r[0] for r in report])), 3))
+        for r, txt, got in report:
+            if r < 0.9: print(f"  ⚠ {r:.2f} | {txt}\n          | oído: {got}")
+    else:
+        choice = [max(tk, key=score) for s, wph, tk, _ in plan]
+    for si, ((s, wph, tk, _), a) in enumerate(zip(plan, choice)):
+        SEGS.append((" ".join(words[i] for i in s), a)); dur = len(a) / SR; lead = 0.03; usable = dur - lead - 0.08; tot = sum(wph); c = 0
+        for i, n in zip(s, wph):
+            a0 = t + lead + usable * c / tot; c += n; a1 = t + lead + usable * c / tot
+            timing.append([words[i], round(a0, 3), round(a1 - 0.03, 3)])
+        last = words[s[-1]][-1]
+        # pausas de presentador: más cortas que antes (0,34 s tras punto) para que el texto fluya (Jocs, 12/10/2026)
+        pause = {"?": 0.38, ".": 0.28, "!": 0.28, ":": 0.2}.get(last, 0.16) + rng.uniform(-0.03, 0.03)
+        if si == 0 and last in ".!": pause += 0.06           # el titular se deja respirar
+        if si + 1 < len(plan) and inicio[si + 1] and last in ".!?": pause += 0.18   # antes de la siguiente noticia
+        audio.append(a); audio.append(np.zeros(int(pause * SR), np.float32)); t += dur + pause
+    full = np.concatenate(audio[:-1]); full = full / (np.max(np.abs(full)) + 1e-9) * 0.89
+    wavfile.write(f"{WORK}/voz/{cid}.wav", SR, (full * 32767).astype(np.int16))
+    json.dump(timing, open(f"{WORK}/words/{cid}.json", "w"), ensure_ascii=False)
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/voz/{cid}.wav", "-af", FX, "-ac", "1", "-b:a", "192k", f"{WORK}/voz/{cid}.mp3"], check=True)
+    print(cid, "dur", round(len(full) / SR, 2), "palabras", len(timing))
+
+if __name__ == "__main__":
+    # python3 pvoice.py <id> [velocidad=1.0] [tomas=8] [voz=davefx | em_alex]
+    # VOZ DEL CANAL: Piper «davefx» (la de la tanda de las 12:18 del 9/10, elegida por el usuario). Kokoro queda como alternativa.
+    sys.path.insert(0, WORK); sys.path.insert(0, D)
+    voice = sys.argv[4] if len(sys.argv) > 4 else "davefx"
+    if voice == "davefx":
+        USE_ASR = False          # misma elección de tomas que la versión aprobada (entonación viva, sin siseo)
+    else:
+        import kokoro_backend; kokoro_backend.install(sys.modules[__name__], voice)
+    main(sys.argv[1], float(sys.argv[2]) if len(sys.argv) > 2 else 1.0, int(sys.argv[3]) if len(sys.argv) > 3 else 8)
