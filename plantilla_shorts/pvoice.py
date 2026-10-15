@@ -59,6 +59,83 @@ RESPELL = {"cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé"
            "mbappé": "embapé", "mbappe": "embapé", "bellingham": "bélingam", "hamilton": "jámilton", "norris": "nóris", "sinner": "síner",
            "djokovic": "yókovich", "lebron": "lebrón", "doncic": "dónchich", "zelenski": "selénski", "zelensky": "selénski", "vinícius": "binísius",
            "medvedev": "medbédef", "zverev": "sbérev", "piastri": "piástri", "leclerc": "leclér", "kane": "kéin", "kim": "kim", "jong": "yong"}   # Ceuta: Whisper oía «Celta» (prueba 10/10)
+# Deportes y nombres extranjeros frecuentes (16/10/2026, Jocs: «Juventus y Balaídos lo ha dicho mal; seguir mejorando la naturalidad»):
+# como los dice un narrador de la televisión española, escritos con ortografía castellana y el acento en la sílaba fuerte.
+# Nombre nuevo → añádelo aquí; si solo sale en un Short, mejor en PRON = {"Nombre": "pronunciación"} dentro del guion.
+DEPORTES = {
+    # clubes
+    "juventus": "yubéntus", "juve": "yúbe", "inter": "ínter", "milan": "milán", "napoli": "nápoli", "lazio": "lácio",
+    "bayern": "báyern", "leverkusen": "léberkusen", "dortmund": "dórmund", "leipzig": "láipsig", "stuttgart": "estútgart",
+    "eintracht": "áintraj", "schalke": "chálke", "hoffenheim": "jófenjaim", "gladbach": "gládbaj",
+    "liverpool": "líberpul", "manchester": "mánchester", "city": "síti", "united": "yunáited", "chelsea": "chélsi",
+    "tottenham": "tótenam", "newcastle": "niucásel", "aston": "áston", "everton": "éberton", "brighton": "bráiton",
+    "fulham": "fúlam", "brentford": "bréntford", "west": "uést", "ham": "jam", "bournemouth": "bórnmuz", "nottingham": "nótingam",
+    "forest": "fórest", "crystal": "crístal", "palace": "pálas", "celtic": "séltic", "rangers": "réinyers",
+    "ajax": "áyax", "feyenoord": "féyenord", "galatasaray": "galatasarái", "fenerbahce": "fenerbáche", "besiktas": "besiktás",
+    "psg": "pe ese yé", "saint-germain": "san yermán", "saint-gilloise": "san yiluás", "union": "unión", "anderlecht": "ánderlej",
+    "lille": "lil", "lyon": "lión", "rennes": "ren", "shakhtar": "sájtar", "zagreb": "ságreb", "bodo": "bódo", "glimt": "glimt",
+    "young": "yang", "boys": "bóis", "qarabag": "karabáj", "ferencvaros": "férenkvaros", "partizan": "pártisan",
+    "olympiacos": "olimpiacós", "olympiakos": "olimpiacós", "paok": "páok", "salzburg": "sálsburg",
+    # estadios
+    "anfield": "ánfild", "trafford": "tráford", "wembley": "uémbli", "allianz": "álians", "etihad": "etijád",
+    "stamford": "estámford", "montjuic": "montyuíc", "signal": "sígnal", "iduna": "idúna",
+    # fútbol: jugadores y entrenadores
+    "raphinha": "rafíña", "lewandowski": "lebandóski", "kylian": "kílian", "vinicius": "binísius", "jude": "yud",
+    "tchouameni": "chuaméni", "rudiger": "rúdiguer", "courtois": "curtuá", "militao": "militáo", "modric": "módrich",
+    "kroos": "crós", "ancelotti": "anchelóti", "xabi": "chábi", "frenkie": "frénki", "kounde": "kundé", "joan": "yoán",
+    "szczesny": "chésni", "stegen": "estéguen", "griezmann": "griésman", "sorloth": "sórlot", "oblak": "óblak",
+    "giuliano": "yuliáno", "lenglet": "langlé", "gallagher": "gálager", "williams": "uíliams", "barrenetxea": "barrenechéa",
+    "salah": "salá", "bruyne": "bráine", "foden": "fóden", "klopp": "clop", "slot": "eslót", "odegaard": "ódegard",
+    "rice": "ráis", "palmer": "pálmer", "kompany": "kompáni", "wirtz": "virts", "neuer": "nóier", "kimmich": "kímij",
+    "muller": "múler", "thuram": "turám", "leao": "leáo", "pulisic": "púlisich", "dembele": "dembelé",
+    "kvaratskhelia": "kvarachélia", "osimhen": "osímen", "vlahovic": "vlajóvich", "yildiz": "yíldis", "conceicao": "consesáo",
+    "guler": "gúler", "gundogan": "gúndogan", "calhanoglu": "chalanólu", "lukaku": "lukáku", "joao": "yoáo",
+    "haaland": "jáland", "kane": "kéin", "musiala": "musiála", "gyokeres": "yókeres", "isak": "ísak", "ekitike": "equitiqué", "ekitiké": "equitiqué", "dembélé": "dembelé", "tchouaméni": "chuaméni",
+    # tenis, motor y baloncesto
+    "fritz": "frits", "draper": "dréiper", "rune": "rúne", "ruud": "rud", "minaur": "miñáur", "rublev": "rúblef",
+    "khachanov": "jachánof", "shelton": "chélton", "tiafoe": "tiafó", "mensik": "ménsik", "swiatek": "suiátek",
+    "sabalenka": "sabalénka", "gauff": "gof", "rybakina": "ribakína", "wimbledon": "uímbledon", "roland": "rolán",
+    "garros": "garós", "open": "óupen", "wells": "uéls", "indian": "índian", "gea": "yeá", "arthur": "ártur", "sekou": "sekú", "jannik": "yánik", "bridge": "brich", "wuhan": "uján", "zverev": "sbéref",
+    "russell": "rásel", "mclaren": "macláren", "bull": "bul", "lawson": "lóson", "gasly": "gásli", "ocon": "ocón",
+    "stroll": "estról", "albon": "álbon", "hulkenberg": "júlkenberg", "bearman": "bírman", "martin": "mártin",
+    "curry": "cúrri", "jokic": "yókich", "antetokounmpo": "antetokúnmpo", "giannis": "yánis", "wembanyama": "uembañáma",
+    "hezonja": "jesónia", "campazzo": "campáso", "shanghai": "shangái", "shanghái": "shangái",
+}
+RESPELL.update(DEPORTES)
+# Fonemas a mano (IPA de espeak) para lo que la ortografía castellana no puede marcar.
+# Balaídos: la voz juntaba «a-í» en diptongo («Baláidos», Whisper oía «Valleidos»); la í larga separa el hiato.
+FONEMAS = {"balaídos": "balaˈiːðos", "balaidos": "balaˈiːðos",
+           "shanghái": "tʃanˈɡaːi", "shanghai": "tʃanˈɡaːi",   # con «sh» y «ŋg» Whisper oía «Sendai»
+           "zverev": "θβˈeɾef"}                                   # «Sbérev» se oía «suére»; con θ inicial, «Sberest»
+# Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
+PLIEGA = str.maketrans({"ś": "s", "ą": "a", "ę": "e", "ń": "n", "ź": "z", "ż": "z", "č": "c", "ć": "c", "š": "s", "ž": "z", "đ": "d", "ø": "o", "ö": "o", "œ": "oe", "ä": "a", "å": "a",
+                        "ł": "l", "ğ": "g", "ş": "s", "ı": "i", "ã": "a", "õ": "o", "ë": "e", "ï": "i", "ý": "y", "ř": "r",
+                        "ő": "o", "ű": "u", "ç": "c", "à": "a", "â": "a", "ê": "e", "è": "e", "î": "i", "ì": "i", "ô": "o",
+                        "ò": "o", "û": "u", "ù": "u", "ß": "ss", "ü": "u"})
+SONIDO = str.maketrans({"ś": "s", "ą": "a", "ę": "e", "ń": "n", "ź": "s", "ż": "s", "č": "ch", "ć": "ch", "š": "s", "ž": "s", "đ": "d", "ø": "o", "ö": "o", "œ": "e", "ä": "e", "å": "o",
+                        "ł": "l", "ğ": "", "ş": "s", "ı": "i", "ã": "a", "õ": "o", "ë": "e", "ï": "i", "ý": "i", "ř": "r",
+                        "ő": "o", "ű": "u", "ç": "s", "à": "a", "â": "a", "ê": "e", "è": "e", "î": "i", "ì": "i", "ô": "o",
+                        "ò": "o", "û": "u", "ù": "u", "ß": "s"})
+RARAS = re.compile(r"[śąęńźżčćšžđøöœäåłğşıãõëïýřőűçàâêîôûèìòùß]|(?<!g)ü")
+VOCAL = "aeiouáéíóú"; TILDE = str.maketrans("aeiou", "áéíóú")
+def plegar(w):
+    """Clave de búsqueda sin letras extranjeras: «Modrić» → «modric», «Ødegaard» → «odegaard» (la «ü» de «pingüino» se queda)."""
+    return re.sub(r"(?<!g)ü", "u", w).translate(PLIEGA) if RARAS.search(w) else w
+def adaptar(w):
+    """Nombre extranjero que no está en los diccionarios → cómo lo leería un presentador español."""
+    if not RARAS.search(w) and not re.search(r"tx|sch|ck|([bdfgkmptvzs])\1", w): return w
+    s = w
+    m = re.search(r"([ij]?)(ić|ič)$", s)
+    if m:   # eslavos: «Jokić» → «yókich», «Modrić» → «módrich»: acento en la sílaba anterior a «-ich»
+        base = s[:m.start(2)]; s = (("y" + base[1:]) if base.startswith("j") else base) + "ich"
+        if not re.search("[áéíóú]", base):
+            k = max((i for i, c in enumerate(base) if c in VOCAL), default=-1)
+            if k >= 0: s = s[:k] + s[k].translate(TILDE) + s[k + 1:]
+    s = re.sub(r"(?<!g)ü", "u", s).translate(SONIDO)
+    s = s.replace("tx", "ch").replace("sch", "ch").replace("ck", "k")
+    return re.sub(r"([bdfgkmptvzs])\1", r"\1", s)
+# Pistas para avisar de nombres extranjeros que aún no tienen pronunciación fijada
+PISTAS = re.compile(r"w|y$|sh|th|ph|tz|oo|ee|ou|ae|([bdfgkmptvzs])\1|[^aeiouáéíóúnlrsdzy]$|" + RARAS.pattern)
 # Palabras extranjeras: sus frases van algo más despacio y se elige la toma en la que se entienden
 EXTRANJERAS = (set(ENGLISH) | set(INGLES_ES) | set(RESPELL)) - {"pp", "psoe", "vox", "ibex", "fed", "ser", "ipc", "efe", "the", "new", "post",
                "social", "black", "break", "pole", "max", "kim", "jong", "brent", "masters", "putin", "kiev", "ceuta", "jordan", "paul", "tommy"}
@@ -153,6 +230,20 @@ def trim(a, thr=0.008):
     a[:fi] *= np.linspace(0, 1, fi); a[-fo:] *= np.linspace(1, 0, fo)
     return a
 
+def pronuncia(lw, w, pron={}):
+    """Cómo se dice una palabra: guion (PRON) > fonemas a mano > inglés a la española > diccionarios > letras extranjeras adaptadas."""
+    if lw in pron:
+        v = pron[lw]; return "⟪" + v.strip("/") + "⟫" if v.startswith("/") else v
+    if lw in FONEMAS: return "⟪" + FONEMAS[lw] + "⟫"
+    if lw in INGLES_ES: return INGLES_ES[lw]
+    if lw in ENGLISH: return "⟦" + ENGLISH[lw] + "⟧"
+    if lw in RESPELL: return RESPELL[lw]
+    f = plegar(lw)
+    if f != lw and f in RESPELL: return RESPELL[f]
+    if f != lw and f in INGLES_ES: return INGLES_ES[f]
+    a = adaptar(lw)
+    return a if a != lw else w
+
 def main(cid, speed=1.06, takes=6):
     mod = importlib.import_module(cid); text = getattr(mod, "VOICE", None)
     if text is None: text = " ".join(w[0] for w in json.load(open(f"{WORK}/words_el/{cid}.json")))
@@ -162,16 +253,30 @@ def main(cid, speed=1.06, takes=6):
     for i, w in enumerate(words):
         cur.append(i)
         if w[-1] in ".?!:" or i == len(words) - 1: sents.append(cur); cur = []
+    # Frases largas (más de 14 palabras), por grupos de respiración separados en las comas (mín. 6 palabras): VITS
+    # atropellaba las frases largas y Whisper las entendía peor (0,81 → 0,86 en la frase de Woltemade, 16/10/2026).
+    grupos = []; cont = []; largo = []
+    for s in sents:
+        parts = [[]]
+        for k, i in enumerate(s):
+            parts[-1].append(i)
+            if len(s) > 14 and words[i].endswith(",") and len(parts[-1]) >= 6 and len(s) - k - 1 >= 4: parts.append([])
+        parts = [g for g in parts if g]
+        for k, g in enumerate(parts): grupos.append(g); cont.append(k > 0); largo.append(len(s))
+    sents = grupos
     frases = [" ".join(words[i] for i in s) for s in sents]
-    inicio = [si == 0 or cambio_tema(fr) for si, fr in enumerate(frases)]          # empieza noticia
+    inicio = [si == 0 or (not cont[si] and cambio_tema(fr)) for si, fr in enumerate(frases)]          # empieza noticia
     fin = [si + 1 < len(sents) and inicio[si + 1] for si in range(len(sents))]    # cierra noticia
+    # PRON = {"Nombre": "pronunciación"} en el guion: nombres de ese Short (mandan sobre los diccionarios; entre /…/, fonemas de espeak)
+    pron = {k.lower(): v for k, v in getattr(mod, "PRON", {}).items()}; avisos = set()
     SEGS.clear(); plan = []; rng = np.random.default_rng(11); audio = []; t = 0.0; timing = []
     for si, s in enumerate(sents):
         spoken = []; wph = []
         for j, i in enumerate(s):
             w = words[i]; lw = w.lower().strip("¿?¡!.,:;…")
             punct = "".join(ch for ch in w if ch in ",.:;?!…")
-            sp = (INGLES_ES[lw] + punct) if lw in INGLES_ES else ("⟦" + ENGLISH[lw] + "⟧" + punct) if lw in ENGLISH else RESPELL.get(lw, w)
+            sp = pronuncia(lw, w, pron)
+            if sp is w and lw[:1].isalpha() and w[:1].isupper() and j > 0 and PISTAS.search(lw): avisos.add(w.strip("¿?¡!.,:;…"))
             core = sp.strip("¿?¡!.,:;…").replace("¿", "").replace("¡", "")
             nxt = words[s[j + 1]].lower().strip("¿?¡!.,:;…") if j + 1 < len(s) else ""
             prv = words[s[j - 1]].lower().strip("¿?¡!.,:;…") if j > 0 else ""
@@ -192,9 +297,9 @@ def main(cid, speed=1.06, takes=6):
             c = clauses[k].strip(); pu = clauses[k + 1] if k + 1 < len(clauses) else ""
             if c:
                 c = c.replace("⟧ ⟦", " ")          # nombres ingleses de varias palabras, de una vez
-                eng = re.findall(r"⟦([^⟧]*)⟧", c)
-                es = ipa(re.sub(r"⟦[^⟧]*⟧", "tatata", c))  # el castellano se fonemiza con su contexto completo
-                for e in eng: es = re.sub(r"[ˈˌ]?t[ˈˌ]?a[ˈˌ]?t[ˈˌ]?a[ˈˌ]?t[ˈˌ]?a", lambda _m, e=e: ipa_en(e), es, count=1)
+                eng = re.findall(r"⟦[^⟧]*⟧|⟪[^⟫]*⟫", c)   # ⟦inglés⟧ y ⟪fonemas a mano⟫, en orden
+                es = ipa(re.sub(r"⟦[^⟧]*⟧|⟪[^⟫]*⟫", "tatata", c))  # el castellano se fonemiza con su contexto completo
+                for e in eng: es = re.sub(r"[ˈˌ]?t[ˈˌ]?a[ˈˌ]?t[ˈˌ]?a[ˈˌ]?t[ˈˌ]?a", lambda _m, e=e: ipa_en(e[1:-1]) if e[0] == "⟦" else e[1:-1], es, count=1)
                 seg = [es]
                 ph += " ".join(seg) + pu.replace("…", ",").replace(";", ",") + " "
         ph = ph.strip()
@@ -202,9 +307,10 @@ def main(cid, speed=1.06, takes=6):
         q = words[s[-1]].endswith("?")
         # con cifras, ritmo más regular (menos variación de duración entre sílabas): los números salían a trompicones (Jocs, 12/10/2026)
         nums = sum(isnum(words[i]) for i in s) >= 2
-        ext = [w for w in (words[i].lower().strip("¿?¡!.,:;…") for i in s) if w in EXTRANJERAS]
+        ext = [w for w in (words[i].lower().strip("¿?¡!.,:;…") for i in s) if w in EXTRANJERAS or w in pron or plegar(w) in EXTRANJERAS
+               or w in FONEMAS or adaptar(w) != w]
         f = 0.93 if si == 0 or q else 1.0                      # gancho y pregunta, más pausados
-        f *= min(1.04, max(0.95, 0.97 + 0.005 * (len(s) - 10)))   # frase corta, más despacio; larga, más ligera
+        f *= min(1.04, max(0.95, 0.97 + 0.005 * (largo[si] - 10)))   # frase corta, más despacio; larga, más ligera
         f *= (0.97 if nums else 1.0) * (0.97 if ext else 1.0)    # cifras y nombres extranjeros, que se entiendan
         st = 0.5 if inicio[si] else (-0.4 if fin[si] and not q else float(rng.uniform(-0.2, 0.2)))
         r = 2 ** (st / 12)
@@ -212,6 +318,7 @@ def main(cid, speed=1.06, takes=6):
         takes_ = [trim(tono(synth(ph, speed * f / r * rng.uniform(0.98, 1.02), noise=rng.uniform(*ns), noise_w=rng.uniform(*nw)), st))
                   for _ in range(takes)]
         plan.append((s, wph, takes_, ext))
+    if avisos: print("  ⚠ nombres que pueden sonar mal (añádelos a PRON del guion o a DEPORTES/RESPELL):", ", ".join(sorted(avisos)))
     choice = []
     if USE_ASR_NOMBRES and not USE_ASR and any(p[3] for p in plan):
         # Frases con nombres extranjeros: de las tomas, la que Whisper entiende con el nombre bien escrito (16/10/2026).
