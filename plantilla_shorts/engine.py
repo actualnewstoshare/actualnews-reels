@@ -229,15 +229,20 @@ def v_big(d, tl, du, ac, value, dec, label, barlab, scale, prefix="", suffix="",
         d.text((990 - bw / 2, 737), badge[0], font=F(FB, 50), fill=A((10, 10, 10), 255 * p), anchor="mm")
 
 def v_timeline(d, tl, du, ac, events, **_):
-    n = len(events); xs = [190, 540, 890][:n] if n == 3 else [300, 780]
+    # 16/10/2026 (Jocs: «muy poco espacio entre "semana pasada" y "esta semana"»): cada fecha cabe en su columna con 40 px de aire;
+    # si no cabe, la letra baja hasta 46 px y, si aún no cabe, pasa a dos líneas.
+    n = len(events); xs = [190, 540, 890][:n] if n == 3 else [270, 810]; colw = (310 if n == 3 else 480)
     g = ease(tl / (0.5 * n + 0.8)); d.line([100, 950, 100 + 880 * g, 950], fill=(255, 255, 255, 120), width=6)
     for (date, txt, t0, hl), x in zip(events, xs):
         p = ease((tl - t0) / 0.5)
         if p <= 0: continue
         c = ac if hl else WHITE; r = int(24 * p)
         d.ellipse([x - r, 950 - r, x + r, 950 + r], fill=A(c, 255))
-        d.text((x, 860 + (1 - p) * 30), date, font=F(FB, 62), fill=A(c, 255 * p), anchor="mm")
-        for j, l in enumerate(wrap(txt, F(FR, 36), 300)): d.text((x, 1010 + j * 46), l, font=F(FR, 36), fill=A(WHITE, 255 * p), anchor="mm")
+        fs = 62
+        while fs > 46 and F(FB, fs).getlength(date) > colw: fs -= 2
+        lines = [date] if F(FB, fs).getlength(date) <= colw else wrap(date, F(FB, fs), colw)
+        for j, l in enumerate(lines): d.text((x, 860 - (len(lines) - 1 - j) * (fs + 8) + (1 - p) * 30), l, font=F(FB, fs), fill=A(c, 255 * p), anchor="mm")
+        for j, l in enumerate(wrap(txt, F(FR, 36), colw)): d.text((x, 1010 + j * 46), l, font=F(FR, 36), fill=A(WHITE, 255 * p), anchor="mm")
 
 def v_board(d, tl, du, ac, rows, **_):
     """Pantalla de cotizaciones: (nombre, valor, cambio_txt, sube_bool)"""
