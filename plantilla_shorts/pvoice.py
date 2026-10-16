@@ -42,7 +42,7 @@ ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "
 # Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
 # Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
 # 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
-INGLES_ES = {"white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg",
+INGLES_ES = {"silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg",
              "news": "niús", "fox": "fóx", "truth": "trúz", "social": "sóchal", "new": "niú", "york": "yórk", "times": "táims",
              "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
              "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
@@ -106,7 +106,9 @@ RESPELL.update(DEPORTES)
 # Balaídos: la voz juntaba «a-í» en diptongo («Baláidos», Whisper oía «Valleidos»); la í larga separa el hiato.
 FONEMAS = {"balaídos": "balaˈiːðos", "balaidos": "balaˈiːðos",
            "shanghái": "tʃanˈɡaːi", "shanghai": "tʃanˈɡaːi",   # con «sh» y «ŋg» Whisper oía «Sendai»
-           "zverev": "θβˈeɾef"}                                   # «Sbérev» se oía «suére»; con θ inicial, «Sberest»
+           "zverev": "θβˈeɾef",
+           # 16/10/2026 (Jocs: «la palabra céntimo hay que mejorarla»): la é tónica, algo más larga, para que no se pierda el esdrújulo
+           "céntimos": "θˈeːntimos", "céntimo": "θˈeːntimo", "centimos": "θˈeːntimos", "centimo": "θˈeːntimo"}                                   # «Sbérev» se oía «suére»; con θ inicial, «Sberest»
 # Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
 PLIEGA = str.maketrans({"ś": "s", "ą": "a", "ę": "e", "ń": "n", "ź": "z", "ż": "z", "č": "c", "ć": "c", "š": "s", "ž": "z", "đ": "d", "ø": "o", "ö": "o", "œ": "oe", "ä": "a", "å": "a",
                         "ł": "l", "ğ": "g", "ş": "s", "ı": "i", "ã": "a", "õ": "o", "ë": "e", "ï": "i", "ý": "y", "ř": "r",
@@ -157,7 +159,9 @@ def ipa_en(text):
 # Lo que en un informativo español se dice en castellano (16/10/2026): cambia también en los subtítulos, que salen de este texto.
 TRADUCIR = [(r"\b[Ll]a [Ww]hite [Hh]ouse\b", "la Casa Blanca"), (r"\b[Ww]hite [Hh]ouse\b", "Casa Blanca"),
             (r"\b(the )?[Pp]entagon\b", "Pentágono"), (r"\b[Ff]ederal [Rr]eserve\b", "Reserva Federal"),
-            (r"\b[Ff]ormula (1|[Oo]ne)\b", "Fórmula 1"), (r"\b[Gg]rand [Pp]rix\b", "Gran Premio")]
+            (r"\b[Ff]ormula (1|[Oo]ne)\b", "Fórmula 1"), (r"\b[Gg]rand [Pp]rix\b", "Gran Premio"),
+            # precios como en la tele: «uno con ochenta y nueve euros» (misma cantidad de palabras: los subtítulos no se descuadran)
+            (r"\b(\w+) coma (\w+(?: y \w+)?) (euros|céntimos)\b", r"\1 con \2 \3")]
 # Ritmo de presentador (16/10/2026, Jocs: «ajustar más las velocidades… que parezca un presentador de verdad»):
 # - cada noticia arranca un poco más aguda y con una pausa antes (el «reinicio» de tono de los informativos);
 # - la última frase de cada noticia cierra algo más grave; el resto varía muy poco (±0,2 semitonos);
@@ -303,6 +307,7 @@ def main(cid, speed=1.06, takes=6):
                 seg = [es]
                 ph += " ".join(seg) + pu.replace("…", ",").replace(";", ",") + " "
         ph = ph.strip()
+        if cont[si]: ph = re.sub(r"^ˌ", "ˈ", ph)   # grupo que empieza tras una coma («hasta…»): primera palabra con su acento, sin tragársela
         if DEBUG: print(ph)
         q = words[s[-1]].endswith("?")
         # con cifras, ritmo más regular (menos variación de duración entre sílabas): los números salían a trompicones (Jocs, 12/10/2026)
@@ -311,7 +316,10 @@ def main(cid, speed=1.06, takes=6):
                or w in FONEMAS or adaptar(w) != w]
         f = 0.93 if si == 0 or q else 1.0                      # gancho y pregunta, más pausados
         f *= min(1.04, max(0.95, 0.97 + 0.005 * (largo[si] - 10)))   # frase corta, más despacio; larga, más ligera
-        f *= (0.97 if nums else 1.0) * (0.97 if ext else 1.0)    # cifras y nombres extranjeros, que se entiendan
+        # cifras y nombres extranjeros, que se entiendan; los precios y porcentajes, más pausados aún (16/10/2026, Jocs: «el "hasta"
+        # antes del 1,89 € del diésel casi no se escucha, demasiado atropellado»: iba a 6,7 sílabas/s)
+        precio = nums and any(words[i].lower().strip("¿?¡!.,:;…") in ("euros", "euro", "céntimos", "ciento", "dólares") for i in s)
+        f *= (0.88 if precio else 0.95 if nums else 1.0) * (0.97 if ext else 1.0)
         st = 0.5 if inicio[si] else (-0.4 if fin[si] and not q else float(rng.uniform(-0.2, 0.2)))
         r = 2 ** (st / 12)
         nw = (0.6, 0.72) if nums else (0.8, 0.95); ns = NOISE_NUM if nums else NOISE
