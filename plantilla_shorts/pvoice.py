@@ -26,8 +26,9 @@ SEGS = []   # (texto de la frase, audio) de la última ejecución, para revisarl
 # por FFT (afftdn dejaba «ruido musical», un pitido metálico entre palabras), sin puerta (cortaba colas) y sin eco corto
 # (18–31 ms coloreaba la voz como un filtro de peine). La voz de VITS ya sale limpia: solo ecualización, de-esser suave
 # y compresión. La versión anterior está en /mnt/project-files/mejoras/2026-10-15/pvoice_v3_anterior.py.
-FX = ("aresample=44100:resampler=soxr,highpass=f=70,lowpass=f=8500,equalizer=f=160:t=q:w=1:g=2.5,equalizer=f=2800:t=q:w=1.4:g=1.5,"
-      "equalizer=f=5500:t=q:w=1.5:g=-3,deesser=i=0.3,acompressor=threshold=-20dB:ratio=2.5:attack=8:release=120:makeup=2")
+# Micro de estudio de radio (20/10, aprobado por Jocs): graves cálidos, presencia, agudos suaves
+FX = ("aresample=44100:resampler=soxr,highpass=f=70:p=2,lowshelf=f=160:g=5,equalizer=f=420:t=q:w=1.2:g=-2.5,"
+      "equalizer=f=3500:t=q:w=1.2:g=2,highshelf=f=7000:g=-2")
 D = "/home/claude/tts"; WORK = "/home/claude/work"
 ESPEAK = [f"{D}/espeak/bin/espeak-ng", "-q", "-v", "es", "--ipa"]
 # Palabras inglesas: se pronuncian en inglés correcto (fonemas en-us de espeak-ng). Clave en minúsculas y sin puntuación.
