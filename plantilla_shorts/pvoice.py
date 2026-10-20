@@ -105,6 +105,7 @@ DEPORTES = {
     "hezonja": "jesónia", "campazzo": "campáso", "shanghai": "shangái", "shanghái": "shangái",
 }
 RESPELL.update(DEPORTES)
+RESPELL.update({"puigdemont": "puchdemón", "turull": "turúll", "raül": "raúl"})  # nombres catalanes (20/10/2026)
 # Fonemas a mano (IPA de espeak) para lo que la ortografía castellana no puede marcar.
 # Balaídos: la voz juntaba «a-í» en diptongo («Baláidos», Whisper oía «Valleidos»); la í larga separa el hiato.
 FONEMAS = {"balaídos": "balaˈiːðos", "balaidos": "balaˈiːðos",
@@ -114,6 +115,15 @@ FONEMAS = {"balaídos": "balaˈiːðos", "balaidos": "balaˈiːðos",
            "efe": "ˈefːe", "hamás": "xːamˈas", "hamas": "xːamˈas", "hezbolá": "xːesβolˈa", "hezbola": "xːesβolˈa", "feijóo": "fːejxˈoo", "feijoo": "fːejxˈoo",
            # 16/10/2026 (Jocs: «la palabra céntimo hay que mejorarla»): la é tónica, algo más larga, para que no se pierda el esdrújulo
            "céntimos": "θˈeːntimos", "céntimo": "θˈeːntimo", "centimos": "θˈeːntimos", "centimo": "θˈeːntimo"}                                   # «Sbérev» se oía «suére»; con θ inicial, «Sberest»
+# 20/10/2026 (Jocs: «los nombres en catalán se pronuncian en catalán»): fonemas catalanes (o abierta, vocal neutra, j y ll catalanas).
+# La j catalana sola se la tragaba la voz («Lunqueres»); con «ʒʝ» Whisper en catalán ya oye «Junqueras». La vocal neutra final se deja en
+# «a» donde la voz la convertía en otra palabra (Romeva → «un breve»). Comprobado con Whisper en catalán y en castellano.
+CATALAN = {"oriol", "junqueras", "jordi", "turull", "raül", "romeva", "dolors", "bassa", "carles", "puigdemont", "procés", "junts",
+           "girona", "lleida", "illa", "josep", "jaume"}
+FONEMAS.update({"oriol": "uɾiˈɔl", "junqueras": "ʒʝuŋkˈeɾas", "jordi": "ʒˈɔɾði", "turull": "tuɾˈuj", "raül": "rəˈul", "romeva": "rumˈeβa",
+    "dolors": "dolˈɔɾs", "bassa": "bˈasa", "carles": "kˈaɾləs", "puigdemont": "putʃðəmˈon", "procés": "pɾusˈes", "junts": "ʒʝˈunts",
+    "girona": "ʒʝiɾˈona", "lleida": "ʎˈeiða", "illa": "ˈiʎa",
+    "josep": "ʒʝozˈɛp", "jaume": "ʒʝˈawːmə"})  # 2.ª vuelta (Jocs 20/10): «as» final de Junqueras clara, Turull con la ll final suave
 # Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
 PLIEGA = str.maketrans({"ś": "s", "ą": "a", "ę": "e", "ń": "n", "ź": "z", "ż": "z", "č": "c", "ć": "c", "š": "s", "ž": "z", "đ": "d", "ø": "o", "ö": "o", "œ": "oe", "ä": "a", "å": "a",
                         "ł": "l", "ğ": "g", "ş": "s", "ı": "i", "ã": "a", "õ": "o", "ë": "e", "ï": "i", "ý": "y", "ř": "r",
@@ -311,13 +321,21 @@ def main(cid, speed=1.06, takes=6):
     # Frases largas (más de 14 palabras), por grupos de respiración separados en las comas (mín. 6 palabras): VITS
     # atropellaba las frases largas y Whisper las entendía peor (0,81 → 0,86 en la frase de Woltemade, 16/10/2026).
     grupos = []; cont = []; largo = []
+    lista = []
     for s in sents:
+        # Listas de nombres (20/10/2026, Jocs: «cuando se listan varios nombres seguidos, se solapan y se lía todo»): con 3 o más
+        # nombres propios y alguna coma, la frase va algo más despacio y lleva un respiro también antes del «y» del último nombre.
+        # (Partirla en trozos era peor: un nombre al principio de un trozo sale deformado, «Raül Romeva» → «Púlpumeva».)
+        cap = sum(1 for k, i in enumerate(s) if k > 0 and words[i][:1].isupper() and words[i].strip("¿?¡!.,:;…«»").isalpha())
+        esl = cap >= 3 and any(words[i].endswith(",") for i in s[:-1])
         parts = [[]]
         for k, i in enumerate(s):
+            nxt = words[s[k + 1]] if k + 1 < len(s) else ""
+            nx2 = words[s[k + 2]] if k + 2 < len(s) else ""
             parts[-1].append(i)
             if len(s) > 14 and words[i].endswith(",") and len(parts[-1]) >= 6 and len(s) - k - 1 >= 4: parts.append([])
         parts = [g for g in parts if g]
-        for k, g in enumerate(parts): grupos.append(g); cont.append(k > 0); largo.append(len(s))
+        for k, g in enumerate(parts): grupos.append(g); cont.append(k > 0); largo.append(len(s)); lista.append(esl)
     sents = grupos
     frases = [" ".join(words[i] for i in s) for s in sents]
     inicio = [si == 0 or (not cont[si] and cambio_tema(fr)) for si, fr in enumerate(frases)]          # empieza noticia
@@ -342,6 +360,8 @@ def main(cid, speed=1.06, takes=6):
             elif (lw in UNITS or lw in TEENS or lw in TENS) and nxt == "mil" and not punct: glue = "+"   # veinte mil -> veintemil
             if lw in ("dos", "tres", "seis") and prv == "y" and j >= 2 and words[s[j - 2]].lower() in TENS:
                 core = {"dos": "dós", "tres": "trés", "seis": "séis"}[lw] + core[len(lw):]   # treintaitrés, con acento final
+            if lista[si] and lw in ("y", "e") and nxt[:1] and words[s[j + 1]][:1].isupper() and prv and not punct and spoken and not spoken[-1][2]:
+                spoken[-1] = (spoken[-1][0], spoken[-1][1], ",")   # «Romeva, y Dolors Bassa»: respiro antes del último nombre
             spoken.append((core, glue, punct)); wph.append(max(1, len(core)) + (3 if punct else 0))
         txt = ""
         for core, glue, punct in spoken:
@@ -374,6 +394,7 @@ def main(cid, speed=1.06, takes=6):
         # antes del 1,89 € del diésel casi no se escucha, demasiado atropellado»: iba a 6,7 sílabas/s)
         precio = nums and any(words[i].lower().strip("¿?¡!.,:;…") in ("euros", "euro", "céntimos", "ciento", "dólares") for i in s)
         f *= (0.88 if precio else 0.95 if nums else 1.0) * (0.97 if ext else 1.0)
+        if lista[si]: f *= 0.92                                 # lista de nombres: sin atropellarse
         st = 0.5 if inicio[si] else (-0.4 if fin[si] and not q else float(rng.uniform(-0.2, 0.2)))
         r = 2 ** (st / 12)
         nw = (0.6, 0.72) if nums else (0.8, 0.95); ns = NOISE_NUM if nums else NOISE
@@ -395,10 +416,16 @@ def main(cid, speed=1.06, takes=6):
                     for ti, a in enumerate(tk):
                         fn = f"/tmp/pv_n_{pi}_{ti}.wav"; wavfile.write(fn, SR, (a / (np.abs(a).max() + 1e-9) * 0.9 * 32767).astype(np.int16)); files.append(fn)
             hyp = iter(asr.transcribe(files))
+            # nombres catalanes: también los escucha Whisper en catalán, y cuenta el nombre si lo oye cualquiera de los dos (20/10/2026)
+            catf = [f for f, (pi, ti) in zip(files, [(pi, ti) for pi, (s, wph, tk, ext) in enumerate(plan) if ext for ti in range(len(tk))])
+                    if any(e in CATALAN for e in plan[pi][3])]
+            hca = dict(zip(catf, asr.transcribe(catf, lang="ca"))) if catf else {}
+            fit = iter(files)
             for s, wph, tk, ext in plan:
                 if not ext: choice.append(max(tk, key=score)); continue
                 txt = " ".join(words[i] for i in s)
-                sc = [(sum(pl(e) in pl(h) for e in ext), round(asr.sim(txt, h)[0], 2), score(a), a) for a, h in ((a, next(hyp)) for a in tk)]
+                hs = [(next(hyp), hca.get(next(fit), "")) for _ in tk]
+                sc = [(sum(pl(e) in pl(h) or pl(e) in pl(hc) for e in ext), round(asr.sim(txt, h)[0], 2), score(a), a) for a, (h, hc) in zip(tk, hs)]
                 best = max(sc, key=lambda x: (x[0], x[1], x[2])); choice.append(best[3])
                 print(f"  nombres {best[0]}/{len(ext)} en la mejor de {len(tk)} tomas: {' '.join(ext)}")
             for fn in files: os.remove(fn)
