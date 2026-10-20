@@ -50,15 +50,17 @@ INGLES_ES = {"silver": "sílver", "rail": "réil", "white": "guáit", "house": "
              "chatgpt": "chat ge pe té", "midterms": "mídterms", "break": "bréik", "pole": "póul", "sprint": "esprínt",
              "starlink": "estárlink", "spacex": "espéis ex", "black": "blák", "friday": "fráidei", "premier": "prémier",
              "netflix": "nétflix", "iphone": "ái fon", "financial": "fainánchal", "journal": "yérnal", "anthropic": "antrópic",
-             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax"}
+             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax", "carney": "cárni", "keith": "kíz", "wilson": "uílson", "danielle": "daniél", "smith": "esmíz"}
 # Siglas y nombres españoles con pronunciación fija
-RESPELL = {"cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
+RESPELL = {"giorgia": "yórya", "garcía": "garzía", "cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
            "ceuta": "céuta", "mohamed": "mojamed", "mohammed": "mojamed", "leclerc": "leclér", "verstappen": "verstápen", "hutíes": "jutíes", "ipc": "ipecé", "lagarde": "lagárd", "haaland": "jáland", "gravenberch": "grávenberj", "cherki": "cherkí", "anfield": "ánfild", "antonelli": "antonéli", "jordan": "yórdan", "bardella": "bardelá", "brent": "brént", "putin": "pútin", "kiev": "kíef", "masters": "másters", "zizou": "zisú", "vacherot": "vacheró", "tsitsipas": "tsitsípas", "lehecka": "léjechka", "tommy": "tómi", "paul": "pol", "taylor": "téilor", "jiri": "yíri", "efe": "éfe", "woltemade": "vóltemade", "muani": "muáni", "keita": "kéita", "asvel": "asvél", "davidovich": "dabídobich",
+           # 19/10/2026 (s1700): nombres franceses como los dice un presentador español
+           "lecornu": "lecorniú", "louvre": "lúvre", "laurent": "lorán", "sébastien": "sebastián", "emmanuel": "emanuel", "macron": "macrón", "euronews": "euroniús", "nuñez": "núñez",
            # 15/10/2026: nombres frecuentes en noticias, como los dice un presentador español (misma voz davefx)
            "netanyahu": "netaniáju", "biden": "báiden", "musk": "mask", "elon": "ílon", "powell": "páuel", "starmer": "stármer", "jinping": "yinpín",
            "mbappé": "embapé", "mbappe": "embapé", "bellingham": "bélingam", "hamilton": "jámilton", "norris": "nóris", "sinner": "síner",
            "djokovic": "yókovich", "lebron": "lebrón", "doncic": "dónchich", "zelenski": "selénski", "zelensky": "selénski", "vinícius": "binísius",
-           "medvedev": "medbédef", "zverev": "sbérev", "piastri": "piástri", "leclerc": "leclér", "kane": "kéin", "kim": "kim", "jong": "yong", "ruud": "rud", "casper": "cásper"}   # Ceuta: Whisper oía «Celta» (prueba 10/10)
+           "medvedev": "medbédef", "zverev": "sbérev", "piastri": "piástri", "leclerc": "leclér", "kane": "kéin", "kim": "kim", "jong": "yong", "ruud": "rud", "casper": "cásper", "daniil": "daníil"}   # Ceuta: Whisper oía «Celta» (prueba 10/10)
 # Deportes y nombres extranjeros frecuentes (16/10/2026, Jocs: «Juventus y Balaídos lo ha dicho mal; seguir mejorando la naturalidad»):
 # como los dice un narrador de la televisión española, escritos con ortografía castellana y el acento en la sílaba fuerte.
 # Nombre nuevo → añádelo aquí; si solo sale en un Short, mejor en PRON = {"Nombre": "pronunciación"} dentro del guion.
@@ -107,6 +109,8 @@ RESPELL.update(DEPORTES)
 FONEMAS = {"balaídos": "balaˈiːðos", "balaidos": "balaˈiːðos",
            "shanghái": "tʃanˈɡaːi", "shanghai": "tʃanˈɡaːi",   # con «sh» y «ŋg» Whisper oía «Sendai»
            "zverev": "θβˈeɾef",
+           # 20/10/2026 (revisión de los Shorts del 16 al 20): «EFE» se oía «ece» o «es»; con la f larga se oye bien
+           "efe": "ˈefːe", "hamás": "xːamˈas", "hamas": "xːamˈas", "hezbolá": "xːesβolˈa", "hezbola": "xːesβolˈa", "feijóo": "fːejxˈoo", "feijoo": "fːejxˈoo",
            # 16/10/2026 (Jocs: «la palabra céntimo hay que mejorarla»): la é tónica, algo más larga, para que no se pierda el esdrújulo
            "céntimos": "θˈeːntimos", "céntimo": "θˈeːntimo", "centimos": "θˈeːntimos", "centimo": "θˈeːntimo"}                                   # «Sbérev» se oía «suére»; con θ inicial, «Sberest»
 # Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
@@ -137,7 +141,50 @@ def adaptar(w):
     s = s.replace("tx", "ch").replace("sch", "ch").replace("ck", "k")
     return re.sub(r"([bdfgkmptvzs])\1", r"\1", s)
 # Pistas para avisar de nombres extranjeros que aún no tienen pronunciación fijada
-PISTAS = re.compile(r"w|y$|sh|th|ph|tz|oo|ee|ou|ae|([bdfgkmptvzs])\1|[^aeiouáéíóúnlrsdzy]$|" + RARAS.pattern)
+PISTAS = re.compile(r"w|sh|th|ph|tz|oo|ee|ou|ae|([bdfgkmptvzs])\1|[^aeiouáéíóúnlrsdzy]$|" + RARAS.pattern)
+# Siglas, marcas, países y nombres (20/10/2026, Jocs: «añade diccionario de cómo pronunciar siglas y demás; revisa TODO: nombres,
+# marcas, países»). SIGLAS solo se aplica si la palabra va en mayúsculas en el guion («UE», no «ue»), salvo las unidades.
+# Siglas que espeak lee bien (OTAN, ONU, IVA, PIB, BCE, FMI, DGT, CNMV, BOE, CIS, DANA, ERTE…) no hace falta ponerlas.
+SIGLAS = {"ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ugt": "u ge té",
+          "ccoo": "comisiones obreras", "erc": "e erre cé", "atp": "a te pé", "wta": "uve doble te a", "ong": "o ene gé",
+          "acs": "a ce ése", "iag": "i a gé", "ia": "i a", "iu": "izquierda unida", "oms": "o eme ése", "ocde": "o ce de e",
+          "ap": "a pé", "bbc": "be be cé", "cnn": "ce ene éne", "ok": "okéi", "f1": "fórmula uno", "motogp": "moto ge pé",
+          "es-alert": "es alért", "eta": "éta", "ee.uu": "estados unidos", "ceo": "ceo", "ttip": "te te i pé", "sareb": "saréb",
+          "cepyme": "cepíme", "ela": "éla", "lab": "lab", "cnt": "ce ene té", "cgt": "ce ge té", 
+          "okdiario": "okéi diario", "laliga": "la liga", "bmw": "be eme uve doble", "byd": "bi uai di", "hbo": "ache be o",
+          "tve": "te uve e", "rtve": "erre te uve e", "psg": "pe ese yé", "ume": "úme", "ine": "íne", "efe": "éfe"}
+UNIDADES = {"mwh": "megavatio hora", "kwh": "kilovatio hora", "gwh": "gigavatio hora"}
+# Marcas, países, ciudades y personas que espeak lee a la castellana pero mal (o la tele dice de otra forma)
+NOMBRES = {
+    # marcas y empresas
+    "instagram": "ínstagram", "tiktok": "tíktok", "youtube": "yutúb", "whatsapp": "guatsáp", "facebook": "féisbuk",
+    "twitter": "tuíter", "spotify": "espótifai", "uber": "úber", "airbnb": "erbiénbi", "playstation": "pléisteichon",
+    "xbox": "équis box", "disney": "dísni", "samsung": "sámsung", "huawei": "juawéi",
+    "xiaomi": "shaomí", "shein": "shéin", "temu": "témiu", "lidl": "lídel", "carrefour": "carrefúr", "ryanair": "ráianer",
+    "easyjet": "ísiyet", "vueling": "buélin", "ouigo": "uígo", "volkswagen": "folsvágen", "naturgy": "náturyi",
+    "vodafone": "bodafón", "orange": "oránch", "pfizer": "fáiser", "boeing": "bóing", "airbus": "érbus", "intel": "íntel",
+    "blackrock": "blákrok", "paypal": "péipal", "mastercard": "mástercar", "revolut": "révolut", "gemini": "yémini",
+    "copilot": "cópailot", "android": "ándroid", "windows": "güíndous", "ipad": "áipad", "gmail": "yiméil", "eurosport": "éurospor",
+    "euronews": "éuroniús", "rosneft": "rosnéft", "bizum": "bísum", "glovo": "glóbo", "wallapop": "guálapop",
+    # palabras inglesas habituales en noticias
+    "podcast": "pódcast", "streaming": "estrímin", "influencer": "inflúenser", "influencers": "inflúensers", "startup": "estártap",
+    "marketing": "márketin", "online": "onláin", "software": "sófguer", "hacker": "jáker", "hackers": "jákers", "ranking": "ránkin",
+    "show": "chou", "reality": "riáliti", "trailer": "tráiler", "smartphone": "esmárfon", "selfie": "sélfi", "hashtag": "jáshtag",
+    "email": "ímeil", "link": "link", "like": "láik", "look": "luk", "fake": "féik", "big": "big", "tech": "tec",
+    "brexit": "bréxit", "silicon": "sílicon", "valley": "báli", "hollywood": "jóliwud", "halloween": "jalouín", "cyber": "sáiber",
+    "monday": "mándei", "grammy": "grámi", "emmy": "émi", "wifi": "uifi", "wi-fi": "uifi", "bluetooth": "blútuz", "chip": "chip",
+    "lobby": "lóbi", "boom": "bum", "crack": "crac", "sprint": "esprínt", "thriller": "zríler", "fan": "fan",
+    # países, regiones y ciudades
+    "texas": "téjas", "oklahoma": "oclajóma", "ohio": "ojáio", "oregon": "oregón", "manhattan": "manjátan", "brooklyn": "brúclin",
+    "seattle": "siátel", "hawaii": "jawái", "hawái": "jawái", "hamás": "jamás", "hamas": "jamás", "hezbolá": "jesbolá",
+    "hizbulá": "jisbulá", "pyongyang": "pionyáng", "hong": "jong", "kong": "kong", "xi": "si", "generalitat": "yeneralitát",
+    "massachusetts": "masachúsets", "michigan": "míchigan", "wisconsin": "uiscónsin", "pensilvania": "pensilbánia",
+    # personas
+    "vance": "báns", "hegseth": "jégset", "leavitt": "lébit", "bessent": "bésent", "merz": "mérts", "scholz": "chólts",
+    "milei": "miléi", "erdogan": "erdogán", "leyen": "láien", "rutte": "rúte", "jamenei": "jameneí", "adam": "ádam",
+    "mourinho": "muríño", "aemet": "aemét", "djene": "yené", "feijóo": "feiyóo", "feijoo": "feiyóo", "giorgia": "yórya",
+}
+RESPELL.update(NOMBRES)
 # Palabras extranjeras: sus frases van algo más despacio y se elige la toma en la que se entienden
 EXTRANJERAS = (set(ENGLISH) | set(INGLES_ES) | set(RESPELL)) - {"pp", "psoe", "vox", "ibex", "fed", "ser", "ipc", "efe", "the", "new", "post",
                "social", "black", "break", "pole", "max", "kim", "jong", "brent", "masters", "putin", "kiev", "ceuta", "jordan", "paul", "tommy"}
@@ -161,7 +208,8 @@ TRADUCIR = [(r"\b[Ll]a [Ww]hite [Hh]ouse\b", "la Casa Blanca"), (r"\b[Ww]hite [H
             (r"\b(the )?[Pp]entagon\b", "Pentágono"), (r"\b[Ff]ederal [Rr]eserve\b", "Reserva Federal"),
             (r"\b[Ff]ormula (1|[Oo]ne)\b", "Fórmula 1"), (r"\b[Gg]rand [Pp]rix\b", "Gran Premio"),
             # precios como en la tele: «uno con ochenta y nueve euros» (misma cantidad de palabras: los subtítulos no se descuadran)
-            (r"\b(\w+) coma (\w+(?: y \w+)?) (euros|céntimos)\b", r"\1 con \2 \3")]
+            (r"\b(\w+) coma (\w+(?: y \w+)?) (euros|céntimos)\b", r"\1 con \2 \3"),
+            (r"\bEE\.UU\.(?=\s+[A-ZÁÉÍÓÚ¿¡]|\s*$)", "EEUU."), (r"\bEE\.UU\.", "EEUU")]   # «EE.UU.» no corta la frase
 # Ritmo de presentador (16/10/2026, Jocs: «ajustar más las velocidades… que parezca un presentador de verdad»):
 # - cada noticia arranca un poco más aguda y con una pausa antes (el «reinicio» de tono de los informativos);
 # - la última frase de cada noticia cierra algo más grave; el resto varía muy poco (±0,2 semitonos);
@@ -238,6 +286,8 @@ def pronuncia(lw, w, pron={}):
     """Cómo se dice una palabra: guion (PRON) > fonemas a mano > inglés a la española > diccionarios > letras extranjeras adaptadas."""
     if lw in pron:
         v = pron[lw]; return "⟪" + v.strip("/") + "⟫" if v.startswith("/") else v
+    if lw in UNIDADES: return UNIDADES[lw]
+    if lw in SIGLAS and sum(c.isupper() for c in w) >= 2 and lw not in FONEMAS: return SIGLAS[lw]
     if lw in FONEMAS: return "⟪" + FONEMAS[lw] + "⟫"
     if lw in INGLES_ES: return INGLES_ES[lw]
     if lw in ENGLISH: return "⟦" + ENGLISH[lw] + "⟧"
@@ -277,11 +327,11 @@ def main(cid, speed=1.06, takes=6):
     for si, s in enumerate(sents):
         spoken = []; wph = []
         for j, i in enumerate(s):
-            w = words[i]; lw = w.lower().strip("¿?¡!.,:;…")
+            w = words[i]; lw = w.lower().strip("¿?¡!.,:;…«»\"“”'()")
             punct = "".join(ch for ch in w if ch in ",.:;?!…")
             sp = pronuncia(lw, w, pron)
-            if sp is w and lw[:1].isalpha() and w[:1].isupper() and j > 0 and PISTAS.search(lw): avisos.add(w.strip("¿?¡!.,:;…"))
-            core = sp.strip("¿?¡!.,:;…").replace("¿", "").replace("¡", "")
+            if sp is w and lw[:1].isalpha() and w[:1].isupper() and j > 0 and PISTAS.search(lw): avisos.add(w.strip("¿?¡!.,:;…«»\"“”'()"))
+            core = sp.strip("¿?¡!.,:;…«»\"“”'()").replace("¿", "").replace("¡", "")
             nxt = words[s[j + 1]].lower().strip("¿?¡!.,:;…") if j + 1 < len(s) else ""
             prv = words[s[j - 1]].lower().strip("¿?¡!.,:;…") if j > 0 else ""
             nx2 = words[s[j + 2]].lower().strip("¿?¡!.,:;…") if j + 2 < len(s) else ""
@@ -307,6 +357,9 @@ def main(cid, speed=1.06, takes=6):
                 seg = [es]
                 ph += " ".join(seg) + pu.replace("…", ",").replace(";", ",") + " "
         ph = ph.strip()
+        # Sinalefa (20/10/2026, Jocs: «fallos enlazando palabras»): vocal igual al final y al principio de dos palabras seguidas
+        # se dice una sola vez, algo más larga («deja la alcaldía» → «dejalaːlcaldía»; antes se oía «deja al arca el día»).
+        ph = re.sub(r"([aeiouɛɔ]) ([ˈˌ]?)\1(?!ː)", r"\2\1ː", ph)
         if cont[si]: ph = re.sub(r"^ˌ", "ˈ", ph)   # grupo que empieza tras una coma («hasta…»): primera palabra con su acento, sin tragársela
         if DEBUG: print(ph)
         q = words[s[-1]].endswith("?")
