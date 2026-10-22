@@ -51,7 +51,7 @@ INGLES_ES = {"silver": "sílver", "rail": "réil", "white": "guáit", "house": "
              "chatgpt": "chat ge pe té", "midterms": "mídterms", "break": "bréik", "pole": "póul", "sprint": "esprínt",
              "starlink": "estárlink", "spacex": "espéis ex", "black": "blák", "friday": "fráidei", "premier": "prémier",
              "netflix": "nétflix", "iphone": "ái fon", "financial": "fainánchal", "journal": "yérnal", "anthropic": "antrópic",
-             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax", "carney": "cárni", "keith": "kíz", "wilson": "uílson", "danielle": "daniél", "smith": "esmíz"}
+             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax", "carney": "cárni", "keith": "kíz", "wilson": "uílson", "danielle": "daniél", "smith": "esmíz", "steve": "estív", "witkoff": "uítkof", "stephen": "estíven", "hubbard": "jábard"}
 # Siglas y nombres españoles con pronunciación fija
 RESPELL = {"giorgia": "yórya", "garcía": "garzía", "cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
            "ceuta": "céuta", "mohamed": "mojamed", "mohammed": "mojamed", "leclerc": "leclér", "verstappen": "verstápen", "hutíes": "jutíes", "ipc": "ipecé", "lagarde": "lagárd", "haaland": "jáland", "gravenberch": "grávenberj", "cherki": "cherkí", "anfield": "ánfild", "antonelli": "antonéli", "jordan": "yórdan", "bardella": "bardelá", "brent": "brént", "putin": "pútin", "kiev": "kíef", "masters": "másters", "zizou": "zisú", "vacherot": "vacheró", "tsitsipas": "tsitsípas", "lehecka": "léjechka", "tommy": "tómi", "paul": "pol", "taylor": "téilor", "jiri": "yíri", "efe": "éfe", "woltemade": "vóltemade", "muani": "muáni", "keita": "kéita", "asvel": "asvél", "davidovich": "dabídobich",
@@ -123,7 +123,10 @@ CATALAN = {"oriol", "junqueras", "jordi", "turull", "raül", "romeva", "dolors",
 FONEMAS.update({"oriol": "uɾiˈɔl", "junqueras": "ʒʝuŋkˈeɾas", "jordi": "ʒˈɔɾði", "turull": "tuɾˈuj", "raül": "rəˈul", "romeva": "rumˈeβa",
     "dolors": "dolˈɔɾs", "bassa": "bˈasa", "carles": "kˈaɾləs", "puigdemont": "putʃðəmˈon", "procés": "pɾusˈes", "junts": "ʒʝˈunts",
     "girona": "ʒʝiɾˈona", "lleida": "ʎˈeiða", "illa": "ˈiʎa",
-    "josep": "ʒʝozˈɛp", "jaume": "ʒʝˈawːmə"})  # 2.ª vuelta (Jocs 20/10): «as» final de Junqueras clara, Turull con la ll final suave
+    "josep": "ʒʝozˈɛp", "jaume": "ʒːʝˈaːume"})
+FONEMAS.update({"milei": "milˈei"})   # 22/10: espeak decía «Mílei»
+RESPELL.update({"christine": "cristín"})   # 22/10: espeak decía «chistine»  # 2.ª vuelta (Jocs 20/10): «as» final de Junqueras clara, Turull con la ll final suave
+# 22/10/2026 (revisión semanal): «Jaume» se pegaba a «Collboni» («ya me colbó»); con «aːu» Whisper oye «Jaume» 5 de 5 en mitad de frase.
 # Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
 PLIEGA = str.maketrans({"ś": "s", "ą": "a", "ę": "e", "ń": "n", "ź": "z", "ż": "z", "č": "c", "ć": "c", "š": "s", "ž": "z", "đ": "d", "ø": "o", "ö": "o", "œ": "oe", "ä": "a", "å": "a",
                         "ł": "l", "ğ": "g", "ş": "s", "ı": "i", "ã": "a", "õ": "o", "ë": "e", "ï": "i", "ý": "y", "ř": "r",
@@ -310,6 +313,9 @@ def pronuncia(lw, w, pron={}):
     return a if a != lw else w
 
 def main(cid, speed=1.06, takes=6):
+    # Ritmo de presentador (22/10/2026, revisión semanal): a 1,1 la voz iba a unas 6,9 sílabas/s y una frase de cada cinco pasaba de 7,5;
+    # un 4 % más pausada se queda cerca de 6,6, lo normal en un informativo, sin sonar lenta.
+    speed *= 0.96
     mod = importlib.import_module(cid); text = getattr(mod, "VOICE", None)
     if text is None: text = " ".join(w[0] for w in json.load(open(f"{WORK}/words_el/{cid}.json")))
     for a, b in TRADUCIR:                     # lo que un presentador español dice en castellano
@@ -380,8 +386,12 @@ def main(cid, speed=1.06, takes=6):
         ph = ph.strip()
         # Sinalefa (20/10/2026, Jocs: «fallos enlazando palabras»): vocal igual al final y al principio de dos palabras seguidas
         # se dice una sola vez, algo más larga («deja la alcaldía» → «dejalaːlcaldía»; antes se oía «deja al arca el día»).
-        ph = re.sub(r"([aeiouɛɔ]) ([ˈˌ]?)\1(?!ː)", r"\2\1ː", ph)
+        # (22/10/2026) solo si la segunda vocal no lleva el acento principal: «por eso hoy» se quedaba en «por esoy», y el «hoy» del cierre
+        # de cada Short no se oía.
+        ph = re.sub(r"([aeiouɛɔ]) (ˌ?)\1(?!ː)", r"\2\1ː", ph)
         if cont[si]: ph = re.sub(r"^ˌ", "ˈ", ph)   # grupo que empieza tras una coma («hasta…»): primera palabra con su acento, sin tragársela
+        # nombre catalán con j al principio de frase: la j más larga, o la voz se la come («Junqueras lo celebra» → «Dinkeras»; 22/10/2026)
+        ph = re.sub(r"^([ˈˌ]?)ʒʝ", r"\1ʒːʝ", ph)
         if DEBUG: print(ph)
         q = words[s[-1]].endswith("?")
         # con cifras, ritmo más regular (menos variación de duración entre sílabas): los números salían a trompicones (Jocs, 12/10/2026)
