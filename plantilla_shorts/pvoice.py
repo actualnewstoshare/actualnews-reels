@@ -12,7 +12,7 @@ Naturalidad:
 Uso: python3 pvoice.py <id> [velocidad] [tomas]
 Salida: /home/claude/work/voz/<id>.mp3 (ya procesada), voz/<id>.wav y /home/claude/work/words/<id>.json (tiempos por palabra)
 """
-import sys, json, re, subprocess, importlib
+import sys, os, json, re, subprocess, importlib
 import numpy as np, onnxruntime as rt
 from scipy.io import wavfile
 DEBUG = False
@@ -27,8 +27,21 @@ SEGS = []   # (texto de la frase, audio) de la última ejecución, para revisarl
 # (18–31 ms coloreaba la voz como un filtro de peine). La voz de VITS ya sale limpia: solo ecualización, de-esser suave
 # y compresión. La versión anterior está en /mnt/project-files/mejoras/2026-10-15/pvoice_v3_anterior.py.
 # Micro de estudio de radio (20/10, aprobado por Jocs): graves cálidos, presencia, agudos suaves
-FX = ("aresample=44100:resampler=soxr,highpass=f=70:p=2,lowshelf=f=160:g=5,equalizer=f=420:t=q:w=1.2:g=-2.5,"
-      "equalizer=f=3500:t=q:w=1.2:g=2,highshelf=f=7000:g=-2")
+# Voz de estudio (24/10/2026, aprobada por Jocs como base): micro personal de locutor (efecto cercanía: graves +10 dB en 150 Hz,
+# menos «caja» en 480 Hz, presencia en 3,2 kHz, agudos suaves) + cabina de locución muy sutil (sala de 0,18 s a −24 dB) + respiraciones.
+# DNSMOS 3,31 frente a 3,15 de la anterior. La compresión de radio se probó y bajaba la nota (2,8–2,9): esta voz ya sale muy regular.
+FX = ("aresample=44100:resampler=soxr,highpass=f=55:p=2,lowshelf=f=150:g=10,equalizer=f=100:t=q:w=1:g=1.5,equalizer=f=480:t=q:w=1.3:g=-3.5,"
+      "equalizer=f=3200:t=q:w=1.2:g=2.5,highshelf=f=7500:g=-3")
+CABINA_DB = -24
+def ir_cabina(path):
+    """Respuesta de una cabina de locución tratada (0,18 s, primeras reflexiones a 6 y 11 ms); se genera igual siempre."""
+    from scipy.signal import butter, lfilter
+    sr = 44100; rng = np.random.default_rng(3); rt60 = 0.18; n = int(sr * rt60 * 1.2); t = np.arange(n) / sr
+    x = rng.standard_normal(n) * np.exp(-6.91 * t / rt60)
+    b, a = butter(2, 6000 / (sr / 2)); x = lfilter(b, a, x); b, a = butter(1, 200 / (sr / 2), "high"); x = lfilter(b, a, x)
+    x = np.concatenate([np.zeros(int(sr * 0.004)), x])
+    for d, g in ((0.006, 0.5), (0.011, 0.35)): x[int(sr * d)] += g * np.abs(x).max() * 3
+    wavfile.write(path, sr, (x / np.sqrt((x ** 2).sum())).astype(np.float32))
 D = "/home/claude/tts"; WORK = "/home/claude/work"
 ESPEAK = [f"{D}/espeak/bin/espeak-ng", "-q", "-v", "es", "--ipa"]
 # Palabras inglesas: se pronuncian en inglés correcto (fonemas en-us de espeak-ng). Clave en minúsculas y sin puntuación.
@@ -43,7 +56,7 @@ ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "
 # Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
 # Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
 # 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
-INGLES_ES = {"silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg",
+INGLES_ES = {"youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
              "news": "niús", "fox": "fóx", "truth": "trúz", "social": "sóchal", "new": "niú", "york": "yórk", "times": "táims",
              "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
              "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
@@ -51,7 +64,7 @@ INGLES_ES = {"silver": "sílver", "rail": "réil", "white": "guáit", "house": "
              "chatgpt": "chat ge pe té", "midterms": "mídterms", "break": "bréik", "pole": "póul", "sprint": "esprínt",
              "starlink": "estárlink", "spacex": "espéis ex", "black": "blák", "friday": "fráidei", "premier": "prémier",
              "netflix": "nétflix", "iphone": "ái fon", "financial": "fainánchal", "journal": "yérnal", "anthropic": "antrópic",
-             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax", "carney": "cárni", "keith": "kíz", "wilson": "uílson", "danielle": "daniél", "smith": "esmíz", "steve": "estív", "witkoff": "uítkof", "stephen": "estíven", "hubbard": "jábard"}
+             "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax", "carney": "cárni", "keith": "kíz", "wilson": "uílson", "danielle": "daniél", "smith": "esmíz", "steve": "estív", "witkoff": "uítkof", "stephen": "estíven", "hubbard": "jábard", "wordpress": "uórdpres", "xataka": "xatáka"}
 # Siglas y nombres españoles con pronunciación fija
 RESPELL = {"giorgia": "yórya", "garcía": "garzía", "cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
            "ceuta": "céuta", "mohamed": "mojamed", "mohammed": "mojamed", "leclerc": "leclér", "verstappen": "verstápen", "hutíes": "jutíes", "ipc": "ipecé", "lagarde": "lagárd", "haaland": "jáland", "gravenberch": "grávenberj", "cherki": "cherkí", "anfield": "ánfild", "antonelli": "antonéli", "jordan": "yórdan", "bardella": "bardelá", "brent": "brént", "putin": "pútin", "kiev": "kíef", "masters": "másters", "zizou": "zisú", "vacherot": "vacheró", "tsitsipas": "tsitsípas", "lehecka": "léjechka", "tommy": "tómi", "paul": "pol", "taylor": "téilor", "jiri": "yíri", "efe": "éfe", "woltemade": "vóltemade", "muani": "muáni", "keita": "kéita", "asvel": "asvél", "davidovich": "dabídobich",
@@ -312,6 +325,20 @@ def pronuncia(lw, w, pron={}):
     a = adaptar(lw)
     return a if a != lw else w
 
+RESPIRA = True
+def respiracion(rng, ref):
+    """Inspiración corta por la boca: ruido rosa con resonancias de tracto vocal (~600 y ~1.700 Hz), 0,22–0,30 s, unos 30 dB bajo la voz."""
+    from scipy.signal import butter, lfilter
+    n = int(rng.uniform(0.22, 0.30) * SR); w = rng.standard_normal(n + 2000)
+    w = np.cumsum(w) * 0.02 + w            # algo de rosa
+    out = np.zeros(n + 2000)
+    for fc, bw, g in ((620, 500, 1.0), (1700, 900, 0.7), (3000, 1500, 0.25)):
+        b, a_ = butter(2, [(fc - bw / 2) / (SR / 2), (fc + bw / 2) / (SR / 2)], "band"); out += g * lfilter(b, a_, w)
+    out = out[2000:]; t_ = np.linspace(0, 1, n)
+    env = np.minimum(1, t_ / 0.45) ** 1.5 * np.minimum(1, (1 - t_) / 0.25)
+    out = out * env; out = out / (np.sqrt(np.mean(out[env > 0.5] ** 2)) + 1e-9)
+    return (out * ref * 10 ** (-30 / 20)).astype(np.float32)
+
 def main(cid, speed=1.06, takes=6):
     # Ritmo de presentador (22/10/2026, revisión semanal): a 1,1 la voz iba a unas 6,9 sílabas/s y una frase de cada cinco pasaba de 7,5;
     # un 4 % más pausada se queda cerca de 6,6, lo normal en un informativo, sin sonar lenta.
@@ -472,11 +499,22 @@ def main(cid, speed=1.06, takes=6):
         pause = {"?": 0.38, ".": 0.28, "!": 0.28, ":": 0.2}.get(last, 0.16) + rng.uniform(-0.03, 0.03)
         if si == 0 and last in ".!": pause += 0.06           # el titular se deja respirar
         if si + 1 < len(plan) and inicio[si + 1] and last in ".!?": pause += 0.18   # antes de la siguiente noticia
-        audio.append(a); audio.append(np.zeros(int(pause * SR), np.float32)); t += dur + pause
+        # Respiración antes de una frase larga (24/10/2026, Jocs: «que suene menos artificial»): un locutor coge aire tras el punto;
+        # las voces sintéticas solo dejan silencio. Ruido rosa con forma de inspiración, muy bajo.
+        sil = None
+        if RESPIRA and si + 1 < len(plan) and last in ".!?:" and len(plan[si + 1][0]) >= 8:
+            pause = max(pause, 0.40); sil = np.zeros(int(pause * SR), np.float32)
+            br = respiracion(rng, float(np.sqrt(np.mean(a ** 2))))
+            end = len(sil) - int(0.05 * SR); sil[max(0, end - len(br)):end] += br[-min(len(br), end):]
+        audio.append(a); audio.append(sil if sil is not None else np.zeros(int(pause * SR), np.float32)); t += dur + pause
     full = np.concatenate(audio[:-1]); full = full / (np.max(np.abs(full)) + 1e-9) * 0.89
     wavfile.write(f"{WORK}/voz/{cid}.wav", SR, (full * 32767).astype(np.int16))
     json.dump(timing, open(f"{WORK}/words/{cid}.json", "w"), ensure_ascii=False)
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/voz/{cid}.wav", "-af", FX, "-ac", "1", "-b:a", "192k", f"{WORK}/voz/{cid}.mp3"], check=True)
+    irp = f"{WORK}/voz/ir_cabina.wav"
+    if not os.path.exists(irp): ir_cabina(irp)
+    fc = f"[0:a]{FX},asplit[d][w];[w][1:a]afir=gtype=none,volume={CABINA_DB}dB[rv];[d][rv]amix=inputs=2:normalize=0:duration=first[o]"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{WORK}/voz/{cid}.wav", "-i", irp, "-filter_complex", fc, "-map", "[o]",
+                    "-ac", "1", "-b:a", "192k", f"{WORK}/voz/{cid}.mp3"], check=True)
     print(cid, "dur", round(len(full) / SR, 2), "palabras", len(timing))
 
 if __name__ == "__main__":
