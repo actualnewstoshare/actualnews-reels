@@ -45,7 +45,7 @@ def ir_cabina(path):
 D = "/home/claude/tts"; WORK = "/home/claude/work"
 ESPEAK = [f"{D}/espeak/bin/espeak-ng", "-q", "-v", "es", "--ipa"]
 # Palabras inglesas: se pronuncian en inglés correcto (fonemas en-us de espeak-ng). Clave en minúsculas y sin puntuación.
-ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "pole": "pole", "truth": "Truth", "social": "Social", "the": "The", "new": "New", "york": "York", "times": "Times", "openai": "Open AI",
+ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "pole": "pole", "truth": "Truth", "the": "The", "new": "New", "york": "York", "times": "Times", "openai": "Open AI",
            "financial": "Financial", "wall": "Wall", "street": "Street", "nvidia": "Nvidia", "micron": "Micron", "bloomberg": "Bloomberg",
            "nasdaq": "Nasdaq", "dow": "Dow", "jones": "Jones", "axios": "Axios", "reuters": "Reuters", "google": "Google",
            "microsoft": "Microsoft", "apple": "Apple", "amazon": "Amazon", "meta": "Meta", "tesla": "Tesla", "white": "White", "house": "House",
@@ -56,8 +56,8 @@ ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "
 # Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
 # Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
 # 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
-INGLES_ES = {"youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
-             "news": "niús", "fox": "fóx", "truth": "trúz", "social": "sóchal", "new": "niú", "york": "yórk", "times": "táims",
+INGLES_ES = {"guardian": "guárdian", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
+             "news": "niús", "fox": "fóx", "truth": "trúz", "new": "niú", "york": "yórk", "times": "táims",
              "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
              "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
              "stanley": "éstanli", "jones": "yóuns", "dow": "dáu", "nasdaq": "násdak", "reuters": "róiters", "openai": "óupen ei ái",
@@ -233,6 +233,8 @@ def ipa_en(text):
 # Lo que en un informativo español se dice en castellano (16/10/2026): cambia también en los subtítulos, que salen de este texto.
 TRADUCIR = [(r"\b[Ll]a [Ww]hite [Hh]ouse\b", "la Casa Blanca"), (r"\b[Ww]hite [Hh]ouse\b", "Casa Blanca"),
             (r"\b(the )?[Pp]entagon\b", "Pentágono"), (r"\b[Ff]ederal [Rr]eserve\b", "Reserva Federal"),
+            # 25/10/2026 (Jocs: «crisis social» sonaba «sochal»): «social» en inglés solo en la red de Trump
+            (r"\b[Tt]ruth [Ss]ocial\b", "Truth Sóchal"),
             (r"\b[Ff]ormula (1|[Oo]ne)\b", "Fórmula 1"), (r"\b[Gg]rand [Pp]rix\b", "Gran Premio"),
             # precios como en la tele: «uno con ochenta y nueve euros» (misma cantidad de palabras: los subtítulos no se descuadran)
             (r"\b(\w+) coma (\w+(?: y \w+)?) (euros|céntimos)\b", r"\1 con \2 \3"),
