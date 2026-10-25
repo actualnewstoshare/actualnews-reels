@@ -56,7 +56,7 @@ ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "
 # Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
 # Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
 # 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
-INGLES_ES = {"guardian": "guárdian", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
+INGLES_ES = {"guardian": "guárdian", "mike": "máik", "rogers": "róyers", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
              "news": "niús", "fox": "fóx", "truth": "trúz", "new": "niú", "york": "yórk", "times": "táims",
              "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
              "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
@@ -137,7 +137,8 @@ FONEMAS.update({"oriol": "uɾiˈɔl", "junqueras": "ʒʝuŋkˈeɾas", "jordi": "
     "dolors": "dolˈɔɾs", "bassa": "bˈasa", "carles": "kˈaɾləs", "puigdemont": "putʃðəmˈon", "procés": "pɾusˈes", "junts": "ʒʝˈunts",
     "girona": "ʒʝiɾˈona", "lleida": "ʎˈeiða", "illa": "ˈiʎa",
     "josep": "ʒʝozˈɛp", "jaume": "ʒːʝˈaːume"})
-FONEMAS.update({"milei": "milˈei"})   # 22/10: espeak decía «Mílei»
+FONEMAS.update({"milei": "milˈei"})
+FONEMAS.update({"truth": "tɾˈuθ", "sóushal": "sˈouʃal"})   # 25/10: Truth Social; con «ʃ» Whisper en inglés oye «social»   # 22/10: espeak decía «Mílei»
 RESPELL.update({"christine": "cristín"})   # 22/10: espeak decía «chistine»  # 2.ª vuelta (Jocs 20/10): «as» final de Junqueras clara, Turull con la ll final suave
 # 22/10/2026 (revisión semanal): «Jaume» se pegaba a «Collboni» («ya me colbó»); con «aːu» Whisper oye «Jaume» 5 de 5 en mitad de frase.
 # Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
@@ -234,7 +235,7 @@ def ipa_en(text):
 TRADUCIR = [(r"\b[Ll]a [Ww]hite [Hh]ouse\b", "la Casa Blanca"), (r"\b[Ww]hite [Hh]ouse\b", "Casa Blanca"),
             (r"\b(the )?[Pp]entagon\b", "Pentágono"), (r"\b[Ff]ederal [Rr]eserve\b", "Reserva Federal"),
             # 25/10/2026 (Jocs: «crisis social» sonaba «sochal»): «social» en inglés solo en la red de Trump
-            (r"\b[Tt]ruth [Ss]ocial\b", "Truth Sóchal"),
+            (r"\b[Tt]ruth [Ss]ocial\b", "Truth Sóushal"),   # con «sh» inglesa (FONEMAS): con «ch» sonaba «sochal»
             (r"\b[Ff]ormula (1|[Oo]ne)\b", "Fórmula 1"), (r"\b[Gg]rand [Pp]rix\b", "Gran Premio"),
             # precios como en la tele: «uno con ochenta y nueve euros» (misma cantidad de palabras: los subtítulos no se descuadran)
             (r"\b(\w+) coma (\w+(?: y \w+)?) (euros|céntimos)\b", r"\1 con \2 \3"),
