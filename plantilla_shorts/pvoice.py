@@ -72,8 +72,8 @@ RESPELL = {"giorgia": "yórya", "garcía": "garzía", "cellnex": "célnex", "arc
            "lecornu": "lecorniú", "louvre": "lúvre", "laurent": "lorán", "sébastien": "sebastián", "emmanuel": "emanuel", "macron": "macrón", "euronews": "euroniús", "nuñez": "núñez",
            # 15/10/2026: nombres frecuentes en noticias, como los dice un presentador español (misma voz davefx)
            "netanyahu": "netaniáju", "biden": "báiden", "musk": "mask", "elon": "ílon", "powell": "páuel", "starmer": "stármer", "jinping": "yinpín",
-           "mbappé": "embapé", "mbappe": "embapé", "bellingham": "bélingam", "hamilton": "jámilton", "norris": "nóris", "sinner": "síner",
-           "djokovic": "yókovich", "lebron": "lebrón", "doncic": "dónchich", "zelenski": "selénski", "zelensky": "selénski", "vinícius": "binísius",
+           "mbappé": "embapé", "athletic": "átletic", "mbappe": "embapé", "bellingham": "bélingam", "hamilton": "jámilton", "norris": "nóris", "sinner": "síner",
+           "djokovic": "yókovich", "vučić": "búchich", "vucic": "búchich", "srdanović": "srdánobich", "aleksandar": "aleksándar", "bodiroga": "bodiróga", "novi": "nóbi", "lebron": "lebrón", "doncic": "dónchich", "zelenski": "selénski", "zelensky": "selénski", "vinícius": "binísius",
            "medvedev": "medbédef", "zverev": "sbérev", "piastri": "piástri", "leclerc": "leclér", "kane": "kéin", "kim": "kim", "jong": "yong", "ruud": "rud", "casper": "cásper", "daniil": "daníil"}   # Ceuta: Whisper oía «Celta» (prueba 10/10)
 # Deportes y nombres extranjeros frecuentes (16/10/2026, Jocs: «Juventus y Balaídos lo ha dicho mal; seguir mejorando la naturalidad»):
 # como los dice un narrador de la televisión española, escritos con ortografía castellana y el acento en la sílaba fuerte.
@@ -138,7 +138,8 @@ FONEMAS.update({"oriol": "uɾiˈɔl", "junqueras": "ʒʝuŋkˈeɾas", "jordi": "
     "girona": "ʒʝiɾˈona", "lleida": "ʎˈeiða", "illa": "ˈiʎa",
     "josep": "ʒʝozˈɛp", "jaume": "ʒːʝˈaːume"})
 FONEMAS.update({"milei": "milˈei"})
-FONEMAS.update({"truth": "tɾˈuθ", "sóushal": "sˈouʃal"})   # 25/10: Truth Social; con «ʃ» Whisper en inglés oye «social»   # 22/10: espeak decía «Mílei»
+FONEMAS.update({"truth": "tɾˈuθ", "sóushal": "sˈouʃal"})
+FONEMAS.update({"lamine": "lamˈin"})   # 26/10 (Jocs): se decía «Lamíne»; es «Lamín» (Yamal)   # 25/10: Truth Social; con «ʃ» Whisper en inglés oye «social»   # 22/10: espeak decía «Mílei»
 RESPELL.update({"christine": "cristín"})   # 22/10: espeak decía «chistine»  # 2.ª vuelta (Jocs 20/10): «as» final de Junqueras clara, Turull con la ll final suave
 # 22/10/2026 (revisión semanal): «Jaume» se pegaba a «Collboni» («ya me colbó»); con «aːu» Whisper oye «Jaume» 5 de 5 en mitad de frase.
 # Letras que no existen en castellano: espeak-ng se las saltaba («Modrić» → «modrik») o las leía mal.
