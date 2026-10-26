@@ -450,7 +450,7 @@ def main(cid, speed=1.06, takes=6):
         # Frases con nombres extranjeros: de las tomas, la que Whisper entiende con el nombre bien escrito (16/10/2026).
         # Si Whisper no está instalado, se elige como siempre.
         try:
-            import asr, os, unicodedata
+            import asr, unicodedata
             def pl(t):
                 t = unicodedata.normalize("NFD", t.lower()); return "".join(c for c in t if c.isalnum() or c == " ")
             files = []
@@ -477,7 +477,7 @@ def main(cid, speed=1.06, takes=6):
     if choice:
         pass
     elif USE_ASR:
-        import asr, os
+        import asr
         files = []
         for pi, (s, wph, tk, _) in enumerate(plan):
             for ti, a in enumerate(tk):
