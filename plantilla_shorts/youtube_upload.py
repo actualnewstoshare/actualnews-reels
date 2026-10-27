@@ -14,6 +14,7 @@ Uso:
   python3 youtube_upload.py estado <id_video>             # uploadStatus, procesado y duración
   python3 youtube_upload.py miniatura <id_video> <img.jpg>  # miniatura propia (vídeo largo semanal; requiere canal verificado)
   python3 youtube_upload.py comentario <id_video> <ficha.md>  # publica «## 5. Comentario fijado» (vídeo largo, una vez público)
+  python3 youtube_upload.py largo                         # último vídeo largo público (el que anuncian los Shorts)
   python3 youtube_upload.py borrar <id_video>             # borra un vídeo propio (solo el atascado, ver SUBIR_YOUTUBE.md)
          [--privacy public|private|unlisted] [--at "2026-10-10 13:00"] [--playlist NOMBRE|ID]
 
@@ -172,12 +173,15 @@ def check():
     print("OK: credenciales válidas")
 
 
-def upload(video, metapath, dry=False, privacy="public", at=None, playlist=None):
+def upload(video, metapath, dry=False, privacy="public", at=None, playlist=None, cabecera=None):
     if not os.path.isfile(video):
         die("no existe " + video)
     meta = load_meta(metapath)
     title = meta["title"][:100]
-    desc = meta.get("description", "")[:5000].replace("<", "‹").replace(">", "›")
+    desc = meta.get("description", "")
+    if cabecera:   # p. ej. el aviso del último vídeo largo que añade publicar.py (27/10/2026)
+        desc = cabecera.strip() + "\n\n" + desc
+    desc = desc[:5000].replace("<", "‹").replace(">", "›")
     when = at or meta.get("publish_at")
     status = {"privacyStatus": privacy, "selfDeclaredMadeForKids": False,
               "embeddable": True, "license": "youtube"}
@@ -223,6 +227,39 @@ def upload(video, metapath, dry=False, privacy="public", at=None, playlist=None)
     return vid
 
 
+def _segundos(iso):
+    """Duración ISO 8601 de la API («PT9M37S», «P0D») a segundos."""
+    m = re.match(r"P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$", iso or "")
+    if not m:
+        return 0
+    d, h, mi, se = (int(x or 0) for x in m.groups())
+    return ((d * 24 + h) * 60 + mi) * 60 + se
+
+
+def ultimo_largo(tok, minimo_s=180):
+    """Último vídeo largo PÚBLICO del canal (más de 3 min: lo que YouTube no trata como Short), para que cada Short lo
+    anuncie (Jocs, 27/10/2026). Mira las 50 últimas subidas: 2 unidades de cuota. Devuelve {"id", "titulo", "url"} o None.
+    Un vídeo largo aún programado (privado con publishAt) no cuenta hasta que sea público."""
+    up = call(tok, "GET", f"{API}/channels?part=contentDetails&mine=true")["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+    items = call(tok, "GET", f"{API}/playlistItems?part=contentDetails&maxResults=50&playlistId={up}").get("items", [])
+    ids = [it["contentDetails"]["videoId"] for it in items]
+    if not ids:
+        return None
+    vs = call(tok, "GET", f"{API}/videos?part=snippet,contentDetails,status&id={','.join(ids)}").get("items", [])
+    largos = [v for v in vs if v["status"].get("privacyStatus") == "public" and v["status"].get("uploadStatus") == "processed"
+              and _segundos(v["contentDetails"].get("duration")) >= minimo_s]
+    if not largos:
+        return None
+    v = max(largos, key=lambda v: v["snippet"]["publishedAt"])
+    return {"id": v["id"], "titulo": v["snippet"]["title"], "url": f"https://youtu.be/{v['id']}"}
+
+
+def cabecera_largo(largo):
+    """Primera línea de la descripción del Short. En los Shorts YouTube no deja enlaces clicables en descripción ni
+    comentarios (desde el 31/08/2023), así que el texto dice qué buscar además de la dirección."""
+    return f"▶ Vídeo completo en el canal: «{largo['titulo']}» → {largo['url']}"
+
+
 def comentar(tok, vid, texto):
     """Publica la pregunta A/B de «## 5. Comentario fijado» como comentario del canal (Jocs, 19/10/2026: más comentarios
     = más empuje del feed). La API no deja fijarlo. Cuesta 50 unidades de cuota; no repite si ya está."""
@@ -265,10 +302,12 @@ def borrar(vid):
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if not a or a[0] not in ("check", "upload", "estado", "borrar", "miniatura", "comentario"):
+    if not a or a[0] not in ("check", "upload", "estado", "borrar", "miniatura", "comentario", "largo"):
         print(__doc__); sys.exit(1)
     if a[0] == "check":
         check()
+    elif a[0] == "largo":
+        print(json.dumps(ultimo_largo(token()), ensure_ascii=False))
     elif a[0] == "miniatura":
         if len(a) != 3:
             die("uso: miniatura <id_video> <img.jpg>")

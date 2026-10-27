@@ -19,7 +19,11 @@ Hace, en este orden, lo mismo que SUBIR_YOUTUBE.md + SUBIR_INSTAGRAM.md, sin que
     y publica Reel + historia (con los reintentos seguros de instagram_upload.py) y limpia GitHub.
  4. Publica la pregunta A/B de «## 5. Comentario fijado» como comentario: en Instagram al momento y en YouTube en cuanto el
     vídeo es público. No repite si se relanza (Jocs, 19/10/2026).
- 5. Guarda una «foto» de métricas (metricas.py) para la revisión del domingo.
+ 5. Enlace al último vídeo largo (Jocs, 27/10/2026): la primera línea de la descripción del Short en YouTube anuncia el
+    último vídeo largo público del canal. La API no deja poner el «vídeo relacionado» de los Shorts (lo único clicable):
+    RESULTADO trae «vincular_en_studio» con la página del Short en YouTube Studio para ponerlo a mano. Si no hay vídeo
+    largo o la consulta falla, el Short se sube igual, sin esa línea.
+ 6. Guarda una «foto» de métricas (metricas.py) para la revisión del domingo.
 Al final imprime una línea «RESULTADO: {...}» con los enlaces y lo que haya fallado: con eso se escribe el mensaje final.
 Antes de lanzarlo, la sesión tiene que haber añadido el repositorio con add_repo (paso 0 de SUBIR_INSTAGRAM.md).
 """
@@ -123,22 +127,39 @@ def yt_esperar(tok, vid, minutos=20):
     return False, yt_estado(tok, vid)
 
 
+def largo(tok, res):
+    """Último vídeo largo público, para la primera línea de la descripción. Nunca para la subida si falla."""
+    try:
+        l = yt.ultimo_largo(tok)
+    except (SystemExit, Exception) as e:
+        log("Vídeo largo: no se pudo consultar; el Short va sin la línea del vídeo largo:", e); return None
+    if not l:
+        log("Vídeo largo: el canal aún no tiene ninguno público; el Short va sin esa línea"); return None
+    res["video_largo"] = l["url"]
+    log("Vídeo largo que anuncia el Short:", l["titulo"], l["url"])
+    return yt.cabecera_largo(l)
+
+
 def youtube(video, ficha, res):
     tok = yt.token()
     titulo = yt.parse_ficha(ficha)["title"]
     vid = yt_existente(tok, titulo)
+    cab = None
     if vid:
         log("YouTube: ya hay un vídeo con este título de las últimas 12 h; no subo otro:", vid)
     else:
-        vid = yt.upload(video, ficha)
+        cab = largo(tok, res)
+        vid = yt.upload(video, ficha, cabecera=cab)
     ok, e = yt_esperar(tok, vid)
     if not ok:
         log(f"YouTube: el vídeo {vid} no se procesa bien ({e}); lo borro y subo UNA vez más la copia local")
         try: yt.call(tok, "DELETE", yt.API + f"/videos?id={vid}", raw=True)
         except SystemExit: pass
-        vid = yt.upload(video, ficha); res["youtube_sustituido"] = True
+        vid = yt.upload(video, ficha, cabecera=cab); res["youtube_sustituido"] = True
         ok, e = yt_esperar(tok, vid)
     res.update(youtube=f"https://youtube.com/shorts/{vid}", youtube_ok=ok, youtube_estado=" / ".join(map(str, e)))
+    if res.get("video_largo"):   # el «vídeo relacionado» (clicable) solo se puede poner a mano en Studio
+        res["vincular_en_studio"] = f"https://studio.youtube.com/video/{vid}/edit"
     log("YouTube:", res["youtube"], "procesado" if ok else f"PROBLEMA {e}")
 
 
@@ -239,7 +260,7 @@ def main():
     if errores:
         print("RESULTADO:", json.dumps({"ok": False, "errores": errores}, ensure_ascii=False)); sys.exit(1)
     if "--dry-run" in a:
-        yt.check(); yt.upload(video, ficha, dry=True)
+        yt.check(); res = {}; yt.upload(video, ficha, dry=True, cabecera=largo(yt.token(), res))
         ig.check(); ig.upload(ig_video or video, ficha, dry=True, wait=True)
         print("RESULTADO:", json.dumps({"ok": True, "dry_run": True, "avisos": avisos}, ensure_ascii=False)); return
     res = {"avisos": avisos}
