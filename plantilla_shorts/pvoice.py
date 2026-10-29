@@ -56,7 +56,7 @@ ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "
 # Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
 # Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
 # 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
-INGLES_ES = {"guardian": "guárdian", "mike": "máik", "rogers": "róyers", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
+INGLES_ES = {"knot": "cnót", "guardian": "guárdian", "mike": "máik", "rogers": "róyers", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
              "news": "niús", "fox": "fóx", "truth": "trúz", "new": "niú", "york": "yórk", "times": "táims",
              "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
              "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
@@ -66,7 +66,7 @@ INGLES_ES = {"guardian": "guárdian", "mike": "máik", "rogers": "róyers", "you
              "netflix": "nétflix", "iphone": "ái fon", "financial": "fainánchal", "journal": "yérnal", "anthropic": "antrópic",
              "jp": "yei pi", "s&p": "ese an pi", "the": "de", "max": "max", "bellingham": "bélingam", "verstappen": "verstápen", "meta": "méta", "tesla": "tésla", "morgan": "mórgan", "micron": "máicron", "axios": "áxios", "trump": "trámp", "zuckerberg": "súkerberg", "bezos": "bésos", "altman": "áltman", "swift": "suíft", "jensen": "yénsen", "huang": "juáng", "harris": "járis", "kamala": "kámala", "lewis": "lúis", "bitcoin": "bitcóin", "keir": "kíer", "starmer": "estármer", "downing": "dáunin", "bowl": "bol", "james": "yéims", "jeff": "yef", "newsmax": "níusmax", "carney": "cárni", "keith": "kíz", "wilson": "uílson", "danielle": "daniél", "smith": "esmíz", "steve": "estív", "witkoff": "uítkof", "stephen": "estíven", "hubbard": "jábard", "wordpress": "uórdpres", "xataka": "xatáka"}
 # Siglas y nombres españoles con pronunciación fija
-RESPELL = {"giorgia": "yórya", "garcía": "garzía", "cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
+RESPELL = {"nba": "ene be a", "zedong": "tsedóng", "giorgia": "yórya", "garcía": "garzía", "cellnex": "célnex", "arcelormittal": "arcelormítal", "pp": "pepé", "psoe": "pesóe", "vox": "bóks", "ibex": "íbex", "fed": "fed", "ser": "ser",
            "ceuta": "céuta", "mohamed": "mojamed", "mohammed": "mojamed", "leclerc": "leclér", "verstappen": "verstápen", "hutíes": "jutíes", "ipc": "ipecé", "lagarde": "lagárd", "haaland": "jáland", "gravenberch": "grávenberj", "cherki": "cherkí", "anfield": "ánfild", "antonelli": "antonéli", "jordan": "yórdan", "bardella": "bardelá", "brent": "brént", "putin": "pútin", "kiev": "kíef", "masters": "másters", "zizou": "zisú", "vacherot": "vacheró", "tsitsipas": "tsitsípas", "lehecka": "léjechka", "tommy": "tómi", "paul": "pol", "taylor": "téilor", "jiri": "yíri", "efe": "éfe", "woltemade": "vóltemade", "muani": "muáni", "keita": "kéita", "asvel": "asvél", "davidovich": "dabídobich",
            # 19/10/2026 (s1700): nombres franceses como los dice un presentador español
            "lecornu": "lecorniú", "louvre": "lúvre", "laurent": "lorán", "sébastien": "sebastián", "emmanuel": "emanuel", "macron": "macrón", "euronews": "euroniús", "nuñez": "núñez",
@@ -175,7 +175,7 @@ PISTAS = re.compile(r"w|sh|th|ph|tz|oo|ee|ou|ae|([bdfgkmptvzs])\1|[^aeiouáéí�
 # Siglas, marcas, países y nombres (20/10/2026, Jocs: «añade diccionario de cómo pronunciar siglas y demás; revisa TODO: nombres,
 # marcas, países»). SIGLAS solo se aplica si la palabra va en mayúsculas en el guion («UE», no «ue»), salvo las unidades.
 # Siglas que espeak lee bien (OTAN, ONU, IVA, PIB, BCE, FMI, DGT, CNMV, BOE, CIS, DANA, ERTE…) no hace falta ponerlas.
-SIGLAS = {"ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ugt": "u ge té",
+SIGLAS = {"ave": "áve", "ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ugt": "u ge té",
           "ccoo": "comisiones obreras", "erc": "e erre cé", "atp": "a te pé", "wta": "uve doble te a", "ong": "o ene gé",
           "acs": "a ce ése", "iag": "i a gé", "ia": "i a", "iu": "izquierda unida", "oms": "o eme ése", "ocde": "o ce de e",
           "ap": "a pé", "bbc": "be be cé", "cnn": "ce ene éne", "ok": "okéi", "f1": "fórmula uno", "motogp": "moto ge pé",
@@ -332,6 +332,20 @@ def pronuncia(lw, w, pron={}):
     return a if a != lw else w
 
 RESPIRA = True
+# Ecualizador dinámico anti-metálico (revisión 29/10/2026; Jocs, 24/10: «la noto un poco artificial, timbre metálico»): las resonancias
+# de davefx en 860 y 1.045 Hz se bajan solo en las tramas en que sobresalen sobre sus vecinas (hasta 8 dB); el resto de la voz no se toca.
+ANTI_METAL = True
+def anti_metal(x, sr, bandas=((860, 120, 0.0), (1045, 140, 4.0)), maxcut=8.0):
+    from scipy.signal import stft, istft
+    f, _, Z = stft(x, sr, nperseg=1024, noverlap=768); M = np.abs(Z) + 1e-9; G = np.ones_like(M)
+    for fc, bw, umbral in bandas:
+        core = (f > fc - bw / 2) & (f < fc + bw / 2)
+        vec = ((f > fc - 2.5 * bw) & (f < fc - bw)) | ((f > fc + bw) & (f < fc + 2.5 * bw))
+        e = 10 * np.log10((M[core] ** 2).mean(0)) - 10 * np.log10((M[vec] ** 2).mean(0))
+        cut = np.convolve(np.clip(e - umbral, 0, maxcut), np.ones(5) / 5, "same")
+        G *= 10 ** (-cut[None, :] * np.exp(-0.5 * ((f - fc) / (bw / 2.355)) ** 2)[:, None] / 20)
+    _, y = istft(Z * G, sr, nperseg=1024, noverlap=768)
+    return y[:len(x)].astype(np.float32)
 def respiracion(rng, ref):
     """Inspiración corta por la boca: ruido rosa con resonancias de tracto vocal (~600 y ~1.700 Hz), 0,22–0,30 s, unos 30 dB bajo la voz."""
     from scipy.signal import butter, lfilter
@@ -399,6 +413,9 @@ def main(cid, speed=1.06, takes=6):
             elif (lw in UNITS or lw in TEENS or lw in TENS) and nxt == "mil" and not punct: glue = "+"   # veinte mil -> veintemil
             if lw in ("dos", "tres", "seis") and prv == "y" and j >= 2 and words[s[j - 2]].lower() in TENS:
                 core = {"dos": "dós", "tres": "trés", "seis": "séis"}[lw] + core[len(lw):]   # treintaitrés, con acento final
+            # pregunta con alternativa («¿con Alcaraz o con el Madrid?»): pausa breve y «ó» marcada; sin ella se oía «al carajo» (29/10/2026)
+            if lw == "o" and words[s[-1]].endswith("?") and prv and not punct and spoken and not spoken[-1][2]:
+                spoken[-1] = (spoken[-1][0], spoken[-1][1], ","); core = "ó"
             if lista[si] and lw in ("y", "e") and nxt[:1] and words[s[j + 1]][:1].isupper() and prv and not punct and spoken and not spoken[-1][2]:
                 spoken[-1] = (spoken[-1][0], spoken[-1][1], ",")   # «Romeva, y Dolors Bassa»: respiro antes del último nombre
             spoken.append((core, glue, punct)); wph.append(max(1, len(core)) + (3 if punct else 0))
@@ -421,10 +438,15 @@ def main(cid, speed=1.06, takes=6):
         # se dice una sola vez, algo más larga («deja la alcaldía» → «dejalaːlcaldía»; antes se oía «deja al arca el día»).
         # (22/10/2026) solo si la segunda vocal no lleva el acento principal: «por eso hoy» se quedaba en «por esoy», y el «hoy» del cierre
         # de cada Short no se oía.
-        ph = re.sub(r"([aeiouɛɔ]) (ˌ?)\1(?!ː)", r"\2\1ː", ph)
+        ph = re.sub(r"([aeiouɛɔ]) (ˌ?)\1(?![ːʊɪ])", r"\2\1ː", ph)
+        # (29/10/2026) ni si la segunda vocal abre diptongo: «ley de eutanasia» se oía «butanasia»
         if cont[si]: ph = re.sub(r"^ˌ", "ˈ", ph)   # grupo que empieza tras una coma («hasta…»): primera palabra con su acento, sin tragársela
         # nombre catalán con j al principio de frase: la j más larga, o la voz se la come («Junqueras lo celebra» → «Dinkeras»; 22/10/2026)
         ph = re.sub(r"^([ˈˌ]?)ʒʝ", r"\1ʒːʝ", ph)
+        # (29/10/2026) la p al principio de frase también se perdía («Pitido final» → «Titido»)
+        ph = re.sub(r"^([ˈˌ]?)p(?!ː)", r"\1pː", ph)
+        # «hoy» con la o algo más larga: en «por eso hoy» del cierre se seguía oyendo «por eso y» (revisión 29/10/2026)
+        ph = re.sub(r"(^| )ˈoɪ(?=[ ,.:;?!]|$)", r"\1ˈoːɪ", ph)
         if DEBUG: print(ph)
         q = words[s[-1]].endswith("?")
         # con cifras, ritmo más regular (menos variación de duración entre sílabas): los números salían a trompicones (Jocs, 12/10/2026)
@@ -513,7 +535,9 @@ def main(cid, speed=1.06, takes=6):
             br = respiracion(rng, float(np.sqrt(np.mean(a ** 2))))
             end = len(sil) - int(0.05 * SR); sil[max(0, end - len(br)):end] += br[-min(len(br), end):]
         audio.append(a); audio.append(sil if sil is not None else np.zeros(int(pause * SR), np.float32)); t += dur + pause
-    full = np.concatenate(audio[:-1]); full = full / (np.max(np.abs(full)) + 1e-9) * 0.89
+    full = np.concatenate(audio[:-1])
+    if ANTI_METAL: full = anti_metal(full, SR)
+    full = full / (np.max(np.abs(full)) + 1e-9) * 0.89
     wavfile.write(f"{WORK}/voz/{cid}.wav", SR, (full * 32767).astype(np.int16))
     json.dump(timing, open(f"{WORK}/words/{cid}.json", "w"), ensure_ascii=False)
     irp = f"{WORK}/voz/ir_cabina.wav"
