@@ -175,7 +175,7 @@ PISTAS = re.compile(r"w|sh|th|ph|tz|oo|ee|ou|ae|([bdfgkmptvzs])\1|[^aeiouáéí�
 # Siglas, marcas, países y nombres (20/10/2026, Jocs: «añade diccionario de cómo pronunciar siglas y demás; revisa TODO: nombres,
 # marcas, países»). SIGLAS solo se aplica si la palabra va en mayúsculas en el guion («UE», no «ue»), salvo las unidades.
 # ONU NO: espeak la deletreaba («o ene u»; Jocs, 01/11/2026) → van en SIGLAS. IVA NO: sonaba «i uve a» (Jocs, 02/11/2026) → en SIGLAS como palabra. Siglas que espeak lee bien (PIB, BCE, FMI, DGT, CNMV, BOE, CIS, DANA, ERTE…) no hace falta ponerlas.
-SIGLAS = {"iva": "íba", "onu": "ónu", "ave": "áve", "ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ugt": "u ge té",
+SIGLAS = {"iva": "íba", "onu": "ónu", "ave": "áve", "ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ertms": "e erre te eme ése", "ugt": "u ge té",
           "ccoo": "comisiones obreras", "erc": "e erre cé", "atp": "a te pé", "wta": "uve doble te a", "ong": "o ene gé",
           "acs": "a ce ése", "iag": "i a gé", "ia": "i a", "iu": "izquierda unida", "oms": "o eme ése", "ocde": "o ce de e",
           "ap": "a pé", "bbc": "be be cé", "cnn": "ce ene éne", "ok": "okéi", "f1": "fórmula uno", "motogp": "moto ge pé",
@@ -445,8 +445,9 @@ def main(cid, speed=1.06, takes=6):
         ph = re.sub(r"^([ˈˌ]?)ʒʝ", r"\1ʒːʝ", ph)
         # (29/10/2026) la p al principio de frase también se perdía («Pitido final» → «Titido»)
         ph = re.sub(r"^([ˈˌ]?)p(?!ː)", r"\1pː", ph)
-        # «hoy» con la o algo más larga: en «por eso hoy» del cierre se seguía oyendo «por eso y» (revisión 29/10/2026)
-        ph = re.sub(r"(^| )ˈoɪ(?=[ ,.:;?!]|$)", r"\1ˈoːɪ", ph)
+        # «hoy» con «y» consonántica: en «por eso hoy» del cierre se oía «por eso y» (29/10); con la o larga, «por eso obi» en 12 Shorts
+        # con música (revisión 05/11/2026: ˈoj 19/20 en los dos reconocedores con la música del canal, ˈoːɪ 13/20)
+        ph = re.sub(r"(^| )ˈoɪ(?=[ ,.:;?!]|$)", r"\1ˈoj", ph)
         if DEBUG: print(ph)
         q = words[s[-1]].endswith("?")
         # con cifras, ritmo más regular (menos variación de duración entre sílabas): los números salían a trompicones (Jocs, 12/10/2026)
