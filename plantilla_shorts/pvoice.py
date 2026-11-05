@@ -56,7 +56,7 @@ ENGLISH = {"fox": "Fox", "news": "News", "break": "break", "sprint": "sprint", "
 # Mandan sobre ENGLISH: así la voz solo usa fonemas castellanos, con su acento y entonación naturales.
 # Palabra inglesa nueva → añádela AQUÍ con su pronunciación española (acento escrito en la sílaba fuerte).
 # 16/10/2026: elegidas entre 2–6 variantes cada una por lo bien que las entiende Whisper «small» (laboratorio en LEEME.md).
-INGLES_ES = {"knot": "cnót", "guardian": "guárdian", "mike": "máik", "rogers": "róyers", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
+INGLES_ES = {"aliexpress": "aliexprés", "daytona": "deitóna", "beach": "bích", "knot": "cnót", "alphabet": "álfabet", "binance": "báinans", "nikkei": "nikéi", "hang": "jang", "guardian": "guárdian", "mike": "máik", "rogers": "róyers", "youtuber": "yutúber", "wild": "uáild", "silver": "sílver", "rail": "réil", "white": "guáit", "house": "jáus", "wall": "uol", "street": "estrít", "elon": "ílon", "musk": "másk", "league": "líg", "conference": "cónferens",
              "news": "niús", "fox": "fóx", "truth": "trúz", "new": "niú", "york": "yórk", "times": "táims",
              "post": "póust", "washington": "guásinton", "google": "gúguel", "apple": "ápel", "microsoft": "máicrosoft",
              "amazon": "ámason", "nvidia": "envídia", "bloomberg": "blúmberg", "goldman": "góldman", "sachs": "sáks",
@@ -174,8 +174,8 @@ def adaptar(w):
 PISTAS = re.compile(r"w|sh|th|ph|tz|oo|ee|ou|ae|([bdfgkmptvzs])\1|[^aeiouáéíóúnlrsdzy]$|" + RARAS.pattern)
 # Siglas, marcas, países y nombres (20/10/2026, Jocs: «añade diccionario de cómo pronunciar siglas y demás; revisa TODO: nombres,
 # marcas, países»). SIGLAS solo se aplica si la palabra va en mayúsculas en el guion («UE», no «ue»), salvo las unidades.
-# Siglas que espeak lee bien (OTAN, ONU, IVA, PIB, BCE, FMI, DGT, CNMV, BOE, CIS, DANA, ERTE…) no hace falta ponerlas.
-SIGLAS = {"ave": "áve", "ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ugt": "u ge té",
+# ONU NO: espeak la deletreaba («o ene u»; Jocs, 01/11/2026) → van en SIGLAS. IVA NO: sonaba «i uve a» (Jocs, 02/11/2026) → en SIGLAS como palabra. Siglas que espeak lee bien (PIB, BCE, FMI, DGT, CNMV, BOE, CIS, DANA, ERTE…) no hace falta ponerlas.
+SIGLAS = {"iva": "íba", "onu": "ónu", "ave": "áve", "ue": "u e", "eeuu": "estados unidos", "smi": "ese eme i", "irpf": "i erre pe éfe", "ugt": "u ge té",
           "ccoo": "comisiones obreras", "erc": "e erre cé", "atp": "a te pé", "wta": "uve doble te a", "ong": "o ene gé",
           "acs": "a ce ése", "iag": "i a gé", "ia": "i a", "iu": "izquierda unida", "oms": "o eme ése", "ocde": "o ce de e",
           "ap": "a pé", "bbc": "be be cé", "cnn": "ce ene éne", "ok": "okéi", "f1": "fórmula uno", "motogp": "moto ge pé",
@@ -212,7 +212,7 @@ NOMBRES = {
     # personas
     "vance": "báns", "hegseth": "jégset", "leavitt": "lébit", "bessent": "bésent", "merz": "mérts", "scholz": "chólts",
     "milei": "miléi", "erdogan": "erdogán", "leyen": "láien", "rutte": "rúte", "jamenei": "jameneí", "adam": "ádam",
-    "mourinho": "muríño", "aemet": "aemét", "djene": "yené", "feijóo": "feiyóo", "feijoo": "feiyóo", "giorgia": "yórya",
+    "mourinho": "mouríño", "aemet": "aemét", "djene": "yené", "feijóo": "feiyóo", "feijoo": "feiyóo", "giorgia": "yórya",
 }
 RESPELL.update(NOMBRES)
 # Palabras extranjeras: sus frases van algo más despacio y se elige la toma en la que se entienden
@@ -334,7 +334,7 @@ def pronuncia(lw, w, pron={}):
 RESPIRA = True
 # Ecualizador dinámico anti-metálico (revisión 29/10/2026; Jocs, 24/10: «la noto un poco artificial, timbre metálico»): las resonancias
 # de davefx en 860 y 1.045 Hz se bajan solo en las tramas en que sobresalen sobre sus vecinas (hasta 8 dB); el resto de la voz no se toca.
-ANTI_METAL = True
+ANTI_METAL = False   # 05/11/2026 (Jocs, revisión semanal): quitado; no mejora la nota (3,33 = 3,33) y resta 0,2–0,8 puntos de inteligibilidad con la música del canal. True para volver
 def anti_metal(x, sr, bandas=((860, 120, 0.0), (1045, 140, 4.0)), maxcut=8.0):
     from scipy.signal import stft, istft
     f, _, Z = stft(x, sr, nperseg=1024, noverlap=768); M = np.abs(Z) + 1e-9; G = np.ones_like(M)
