@@ -131,6 +131,9 @@ FONEMAS = {"balaídos": "balaˈiːðos", "balaidos": "balaˈiːðos",
 # 20/10/2026 (Jocs: «los nombres en catalán se pronuncian en catalán»): fonemas catalanes (o abierta, vocal neutra, j y ll catalanas).
 # La j catalana sola se la tragaba la voz («Lunqueres»); con «ʒʝ» Whisper en catalán ya oye «Junqueras». La vocal neutra final se deja en
 # «a» donde la voz la convertía en otra palabra (Romeva → «un breve»). Comprobado con Whisper en catalán y en castellano.
+# BOE y OCU como palabra, no letra a letra (Jocs, 06/11/2026: «BOE no se escucha bien», «OCU no se dice o ce u»).
+# BOE con la e final abierta: 5/6 Whisper y 6/6 Parakeet («bóe» cerrado, 1/6 y 2/6); OCU 4/6 y 4/6.
+FONEMAS.update({"boe": "bˈoɛ", "ocu": "ˈoku"})
 CATALAN = {"oriol", "junqueras", "jordi", "turull", "raül", "romeva", "dolors", "bassa", "carles", "puigdemont", "procés", "junts",
            "girona", "lleida", "illa", "josep", "jaume"}
 FONEMAS.update({"oriol": "uɾiˈɔl", "junqueras": "ʒʝuŋkˈeɾas", "jordi": "ʒˈɔɾði", "turull": "tuɾˈuj", "raül": "rəˈul", "romeva": "rumˈeβa",
@@ -180,7 +183,7 @@ SIGLAS = {"iva": "íba", "onu": "ónu", "ave": "áve", "ue": "u e", "eeuu": "est
           "acs": "a ce ése", "iag": "i a gé", "ia": "i a", "iu": "izquierda unida", "oms": "o eme ése", "ocde": "o ce de e",
           "ap": "a pé", "bbc": "be be cé", "cnn": "ce ene éne", "ok": "okéi", "f1": "fórmula uno", "motogp": "moto ge pé",
           "es-alert": "es alért", "eta": "éta", "ee.uu": "estados unidos", "ceo": "ceo", "ttip": "te te i pé", "sareb": "saréb",
-          "cepyme": "cepíme", "ela": "éla", "lab": "lab", "cnt": "ce ene té", "cgt": "ce ge té", 
+          "cepyme": "cepíme", "ceoe": "ceóe", "ela": "éla", "lab": "lab", "cnt": "ce ene té", "cgt": "ce ge té", 
           "okdiario": "okéi diario", "laliga": "la liga", "bmw": "be eme uve doble", "byd": "bi uai di", "hbo": "ache be o",
           "tve": "te uve e", "rtve": "erre te uve e", "psg": "pe ese yé", "ume": "úme", "ine": "íne", "efe": "éfe"}
 UNIDADES = {"mwh": "megavatio hora", "kwh": "kilovatio hora", "gwh": "gigavatio hora"}
